@@ -1,70 +1,220 @@
-# Getting Started with Create React App
+# IT Support Tickets - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Professional React-based frontend for the IT Support Ticket Dashboard with modern UI and complete ticket management features.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- User authentication (login/register)
+- Dashboard with metrics and ticket list
+- Create, view, edit, and delete tickets
+- Filter tickets by status and priority
+- Add comments to tickets
+- Responsive design
+- Protected routes with JWT
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Node.js v14+
+- npm or yarn
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation
 
-### `npm test`
+```bash
+npm install
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Configuration
 
-### `npm run build`
+Update the API base URL in `src/services/api.js` if needed:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```javascript
+const API_BASE_URL = 'http://localhost:5000/api';
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Running the Application
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Development mode:**
+```bash
+npm start
+```
 
-### `npm run eject`
+Frontend will run on `http://localhost:3000`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+**Production build:**
+```bash
+npm run build
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Project Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
+frontend/
+├── src/
+│   ├── screens/
+│   │   ├── Login/
+│   │   │   ├── index.js
+│   │   │   ├── component.js
+│   │   │   └── styles.js
+│   │   ├── Register/
+│   │   │   ├── index.js
+│   │   │   ├── component.js
+│   │   │   └── styles.js
+│   │   ├── Dashboard/
+│   │   │   ├── index.js
+│   │   │   ├── component.js
+│   │   │   └── styles.js
+│   │   ├── CreateTicket/
+│   │   │   ├── index.js
+│   │   │   ├── component.js
+│   │   │   └── styles.js
+│   │   └── TicketDetail/
+│   │       ├── index.js
+│   │       ├── component.js
+│   │       └── styles.js
+│   ├── context/
+│   │   └── AuthContext.js      # Authentication state management
+│   ├── services/
+│   │   └── api.js              # API client & service methods
+│   ├── App.js                  # Main app with routing
+│   └── index.js                # React entry point
+├── package.json
+└── README.md
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Screen Structure Pattern
 
-## Learn More
+Each screen follows a reusable pattern:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **index.js** - Export component
+- **component.js** - React component with logic
+- **styles.js** - Inline styles object
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Example Usage
 
-### Code Splitting
+```javascript
+// index.js
+import LoginComponent from './component';
+export default LoginComponent;
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+// component.js
+import styles from './styles';
 
-### Analyzing the Bundle Size
+const LoginComponent = () => {
+  return <div style={styles.container}>...</div>;
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+// styles.js
+const styles = {
+  container: { ... },
+  // ...
+};
+export default styles;
+```
 
-### Making a Progressive Web App
+## Available Screens
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Login Screen
+- User email and password input
+- Error handling
+- Link to registration
+- JWT token storage
 
-### Advanced Configuration
+### Register Screen
+- User name, email, and password input
+- Password validation (min 8 characters)
+- Error handling
+- Link to login
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Dashboard Screen
+- Display metrics (total, open, in progress, high priority tickets)
+- Filter by status and priority
+- Ticket list with actions (view/delete)
+- Create new ticket button
+- User logout
 
-### Deployment
+### Create Ticket Screen
+- Form for creating new tickets
+- Fields: title, description, category, priority, assign to
+- Validation
+- Cancel and submit buttons
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Ticket Detail Screen
+- View full ticket information
+- Edit ticket details
+- View and add comments
+- Status update capability
+- Back to dashboard button
 
-### `npm run build` fails to minify
+## API Integration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+All API calls are managed through `src/services/api.js`:
+
+```javascript
+import { ticketService, commentService, authService } from './services/api';
+
+// Create ticket
+await ticketService.createTicket(ticketData);
+
+// Get all tickets
+await ticketService.getTickets({ status: 'Open' });
+
+// Add comment
+await commentService.addComment(ticketId, { comment: 'text' });
+```
+
+## Authentication Flow
+
+1. User registers or logs in
+2. JWT token stored in localStorage
+3. Token automatically added to API requests via interceptor
+4. Protected routes check token existence
+5. Logout clears token and redirects to login
+
+## Styling Approach
+
+- Inline CSS objects in `styles.js`
+- Consistent design system
+- Responsive layouts using CSS Grid and Flexbox
+- Color scheme:
+  - Primary: #007bff (blue)
+  - Success: #28a745 (green)
+  - Danger: #dc3545 (red)
+  - Warning: #ffc107 (yellow)
+  - Secondary: #6c757d (gray)
+
+## Performance Considerations
+
+- React Router for efficient navigation
+- Context API for state management
+- Axios for HTTP requests with interceptors
+- Lazy loading of routes possible
+
+## Deployment
+
+### Build for Production
+```bash
+npm run build
+```
+
+### Environment Variables
+Create `.env` file:
+```
+REACT_APP_API_BASE_URL=https://your-api-domain.com/api
+```
+
+### Hosting Options
+- Vercel
+- Netlify
+- AWS S3 + CloudFront
+- GitHub Pages
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## License
+
+ISC

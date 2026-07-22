@@ -1,0 +1,81 @@
+const styles = {
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    backgroundColor: '#f5f5f5',
+    fontFamily: 'Arial, sans-serif',
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: '40px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+    width: '100%',
+    maxWidth: '400px',
+  },
+  title: {
+    textAlign: 'center',
+    color: '#333',
+    marginBottom: '30px',
+    fontSize: '28px',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+  },
+  formGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  label: {
+    marginBottom: '5px',
+    color: '#555',
+    fontWeight: 'bold',
+    fontSize: '14px',
+  },
+  input: {
+    padding: '10px 12px',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    fontSize: '14px',
+    fontFamily: 'Arial, sans-serif',
+    transition: 'border-color 0.3s',
+  },
+  button: {
+    padding: '12px',
+    backgroundColor: '#28a745',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    marginTop: '10px',
+    transition: 'background-color 0.3s',
+  },
+  error: {
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    padding: '12px',
+    borderRadius: '4px',
+    marginBottom: '15px',
+    fontSize: '14px',
+  },
+  link: {
+    textAlign: 'center',
+    marginTop: '20px',
+    color: '#666',
+    fontSize: '14px',
+  },
+  anchor: {
+    color: '#28a745',
+    textDecoration: 'none',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  },
+};
+
+export default styles;
