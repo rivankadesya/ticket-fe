@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import { ticketService, commentService, authService } from "../../services/api";
+import { connectSocket, disconnectSocket, onEvent, offEvent } from "../../services/socket";
 import KanbanColumn from '../../components/KanbanColumn';
 import KanbanCard from '../../components/KanbanCard';
 import TicketModal from '../../components/TicketModal';
@@ -137,21 +138,30 @@ const DashboardComponent = () => {
     document.body.style.backgroundColor = t.bg.primary;
   }, [isDark, t.bg.primary]);
 
+  useEffect(() => () => disconnectSocket(), []);
+
   useEffect(() => {
     fetchData(true);
-    const interval = setInterval(() => {
-      fetchData(false);
-    }, 5000);
-    return () => clearInterval(interval);
+    connectSocket();
+
+    const ticketCb = () => fetchData(false);
+    onEvent('tickets:created', ticketCb);
+    onEvent('tickets:updated', ticketCb);
+    onEvent('tickets:deleted', ticketCb);
+
+    return () => {
+      offEvent('tickets:created', ticketCb);
+      offEvent('tickets:updated', ticketCb);
+      offEvent('tickets:deleted', ticketCb);
+    };
   }, [filterStatus, filterPriority]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (detailTicket) {
       fetchComments(detailTicket.id);
-      const commentInterval = setInterval(() => {
-        fetchComments(detailTicket.id);
-      }, 3000);
-      return () => clearInterval(commentInterval);
+      const cb = () => fetchComments(detailTicket.id);
+      onEvent('comments:added', cb);
+      return () => offEvent('comments:added', cb);
     }
   }, [detailTicket]); // eslint-disable-line react-hooks/exhaustive-deps
 
