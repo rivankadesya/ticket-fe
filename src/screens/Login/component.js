@@ -1,7 +1,10 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, LogIn, Ticket } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
-import styles from './styles';
+import { useTheme } from '../../store/themeStore';
+import { lightTheme, darkTheme } from '../../theme';
+import { getStyles } from './styles';
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');
@@ -10,12 +13,17 @@ const LoginComponent = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { isDark } = useTheme();
+  const t = isDark ? darkTheme : lightTheme;
+
+  React.useEffect(() => {
+    document.body.style.backgroundColor = isDark ? '#0f172a' : '#eef2ff';
+  }, [isDark]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       await login(email, password);
       navigate('/dashboard');
@@ -26,42 +34,57 @@ const LoginComponent = () => {
     }
   };
 
+  const s = getStyles(t, isDark);
+
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Login</h1>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          {error && <div style={styles.error}>{error}</div>}
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={styles.input}
-            />
+    <div style={s.container}>
+      <div style={s.card}>
+        <div style={s.logoWrapper}>
+          <div style={s.logoIcon}>
+            <Ticket size={28} color="#fff" />
           </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={styles.input}
-            />
+          <h1 style={s.title}>Welcome back</h1>
+          <p style={s.subtitle}>Sign in to your account</p>
+        </div>
+
+        {error && (
+          <div style={s.error}>{error}</div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={s.formGroup}>
+            <label style={s.label}>Email</label>
+            <div style={s.inputWrapper}>
+              <Mail size={18} style={{ ...s.inputIcon, color: t.text.tertiary }} />
+              <input
+                type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
+                placeholder="you@company.com"
+                style={s.input}
+              />
+            </div>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{ ...styles.button, opacity: loading ? 0.6 : 1 }}
-          >
-            {loading ? 'Logging in...' : 'Login'}
+
+          <div style={{ ...s.formGroup, marginBottom: '24px' }}>
+            <label style={s.label}>Password</label>
+            <div style={s.inputWrapper}>
+              <Lock size={18} style={{ ...s.inputIcon, color: t.text.tertiary }} />
+              <input
+                type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
+                placeholder="Enter password"
+                style={s.input}
+              />
+            </div>
+          </div>
+
+          <button type="submit" disabled={loading} style={s.submitButton(loading)}>
+            <LogIn size={18} />
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-        <p style={styles.link}>
-          Don't have an account? <a href="/register" style={styles.anchor}>Register</a>
+
+        <p style={s.footerText}>
+          Don't have an account?{' '}
+          <Link to="/register" style={s.link}>Create account</Link>
         </p>
       </div>
     </div>
