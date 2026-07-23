@@ -12,6 +12,7 @@ Aplikasi klien dashboard tiket IT Support yang dibangun menggunakan React 19, Po
 - **HTTP Client:** Axios (dilengkapi interceptor otomatis untuk menyertakan JWT Bearer Token)
 - **Routing:** React Router DOM (v7)
 - **Icons:** Lucide React
+- **Push Notification:** `@pusher/push-notifications-web` (Pusher Beams SDK)
 
 ---
 
@@ -19,6 +20,9 @@ Aplikasi klien dashboard tiket IT Support yang dibangun menggunakan React 19, Po
 
 ```
 frontend/
+├── public/
+│   └── service-worker.js        # Service worker untuk menerima push notification Pusher Beams
+│
 ├── src/
 │   ├── components/
 │   │   ├── Text.js              # Komponen tipografi Poppins global (h1 - mono)
@@ -29,7 +33,7 @@ frontend/
 │   │   └── KanbanCard.js        # Kartu tiket kanban (dilengkapi visual priority border)
 │   │
 │   ├── context/
-│   │   └── AuthContext.js       # Manajemen sesi JWT Login/Register pengguna
+│   │   └── AuthContext.js       # Manajemen sesi JWT & registrasi Pusher Beams
 │   │
 │   ├── screens/
 │   │   └── Dashboard/
@@ -40,7 +44,8 @@ frontend/
 │   │   └── themeStore.js        # State global dark/light mode via Zustand
 │   │
 │   ├── services/
-│   │   └── api.js               # Klien Axios & pemanggilan endpoint API backend
+│   │   ├── api.js               # Klien Axios & pemanggilan endpoint API backend
+│   │   └── pusher.js            # Inisialisasi & registrasi Pusher Beams SDK
 │   │
 │   ├── theme.js                 # Token warna light/dark mode
 │   ├── index.css                # Font face Poppins & reset CSS
@@ -59,7 +64,18 @@ Untuk memastikan data tersinkronisasi antar user tanpa setup WebSocket server ya
 - **Komentar:** Saat panel detail tiket dibuka, komentar disinkronkan setiap **3 detik** sehingga diskusi antar agen berjalan secara real-time.
 
 ### 2. Notifikasi Push (Pusher Beams)
-Frontend diintegrasikan dengan SDK Pusher Beams menggunakan Instance ID klien (`b348e873-658f-4747-beff-60b6841ef86d`) untuk menerima banner notifikasi push langsung ke browser pengguna melalui pendaftaran Service Worker.
+Frontend diintegrasikan dengan **Pusher Beams** untuk mengirim notifikasi push browser secara real-time ketika tiket dibuat atau diperbarui.
+
+**Alur kerja:**
+1. Saat aplikasi dimuat (dan token JWT tersedia), `AuthContext` memanggil `initPusherBeams()` yang menginisialisasi SDK Pusher.
+2. `registerPusherUser()` kemudian memanggil endpoint backend `POST /api/pusher/beams-auth` dengan token JWT untuk mendapatkan token autentikasi Pusher.
+3. Token tersebut digunakan untuk mendaftarkan browser pengguna ke Pusher Beams.
+4. Service Worker (`public/service-worker.js`) mengimpor script Pusher dan menangani event push — menampilkan notifikasi browser meskipun tab sedang tidak aktif.
+5. Saat logout, `clearPusherUser()` membersihkan semua state Pusher Beams.
+
+**Notifikasi yang dikirim backend:**
+- **Tiket baru** → dikirim ke semua assignee tiket tersebut.
+- **Tiket diperbarui** (status/priority berubah) → dikirim ke creator dan semua assignee.
 
 ### 3. Solusi Masalah Drag-and-Drop (dnd-kit constraint)
 Secara bawaan, dnd-kit menelan semua event pointer klik pada kartu kanban. Untuk mengatasinya, kami menerapkan konfigurasi sensor pointer:
