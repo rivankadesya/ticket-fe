@@ -293,20 +293,19 @@ const DashboardComponent = () => {
 
   const statusItems = metrics
     ? [
-        { icon: Ticket, label: "Total Tickets", value: metrics.total_tickets, color: "#6366f1", glow: "rgba(99, 102, 241, 0.12)" },
-        { icon: Inbox, label: "Open", value: metrics.open_tickets, color: "#ef4444", glow: "rgba(239, 68, 68, 0.12)" },
-        { icon: Clock, label: "In Progress", value: metrics.in_progress_tickets, color: "#f59e0b", glow: "rgba(245, 158, 11, 0.12)" },
-        { icon: CheckCircle2, label: "Resolved", value: metrics.resolved_tickets, color: "#10b981", glow: "rgba(16, 185, 129, 0.12)" },
-        { icon: Users, label: "Total Users", value: metrics.total_users || 0, color: "#ec4899", glow: "rgba(236, 72, 153, 0.12)", onClick: () => setActiveMenu("users") },
+        { icon: Inbox, label: "Open", value: metrics.open_tickets, color: "#ef4444" },
+        { icon: Clock, label: "In Progress", value: metrics.in_progress_tickets, color: "#f59e0b" },
+        { icon: CheckCircle2, label: "Resolved", value: metrics.resolved_tickets, color: "#10b981" },
+        { icon: X, label: "Closed", value: metrics.closed_tickets, color: "#6b7280" },
       ]
     : [];
 
   const priorityItems = metrics
     ? [
-        { icon: ArrowDown, label: "Low Priority", value: metrics.low_priority_tickets, color: priorityColors.Low, glow: `${priorityColors.Low}12` },
-        { icon: AlertCircle, label: "Medium Priority", value: metrics.medium_priority_tickets, color: priorityColors.Medium, glow: `${priorityColors.Medium}12` },
-        { icon: Zap, label: "High Priority", value: metrics.high_priority_tickets, color: priorityColors.High, glow: `${priorityColors.High}12` },
-        { icon: Flame, label: "Critical Priority", value: metrics.critical_priority_tickets, color: priorityColors.Critical, glow: `${priorityColors.Critical}12` },
+        { icon: ArrowDown, label: "Low", value: metrics.low_priority_tickets, color: priorityColors.Low },
+        { icon: AlertCircle, label: "Medium", value: metrics.medium_priority_tickets, color: priorityColors.Medium },
+        { icon: Zap, label: "High", value: metrics.high_priority_tickets, color: priorityColors.High },
+        { icon: Flame, label: "Critical", value: metrics.critical_priority_tickets, color: priorityColors.Critical },
       ]
     : [];
 
@@ -397,42 +396,60 @@ const DashboardComponent = () => {
       <main style={s.main}>
         {activeMenu === "tickets" ? (
           <>
-            {/* Status Metrics */}
-        <div style={s.metricsGrid}>
-          {statusItems.map((m) => (
-            <div
-              key={m.label}
-              onClick={m.onClick}
-              style={{
-                ...s.metricCard(m.glow),
-                cursor: m.onClick ? "pointer" : "default",
-              }}
-            >
-              <div style={s.metricIconWrapper(m.glow)}>
-                <m.icon size={24} color={m.color} />
+            {/* Metrics — compact info card */}
+        {metrics && (
+          <div style={s.metricsCard}>
+            <div style={s.metricsBody}>
+              {/* Hero: Total */}
+              <div style={s.metricHero}>
+                <Ticket size={16} color={t.accent} />
+                <span style={s.metricHeroValue}>{metrics.total_tickets}</span>
+                <span style={s.metricHeroLabel}>Total Tickets</span>
               </div>
-              <div>
-                <div style={s.metricValue}>{m.value}</div>
-                <div style={s.metricLabel}>{m.label}</div>
-              </div>
-            </div>
-          ))}
-        </div>
 
-        {/* Priority Metrics */}
-        <div style={{ ...s.metricsGrid, marginTop: '-12px', marginBottom: '28px' }}>
-          {priorityItems.map((m) => (
-            <div key={m.label} style={s.metricCard(m.glow)}>
-              <div style={s.metricIconWrapper(m.glow)}>
-                <m.icon size={22} color={m.color} />
+              <div style={s.metricDivider} />
+
+              {/* Statuses */}
+              <div style={s.metricGroup}>
+                <div style={s.metricGroupLabel}>Status</div>
+                <div style={s.metricItems}>
+                  {statusItems.map((c) => (
+                    <div key={c.label} style={s.metricPill}>
+                      <c.icon size={11} color={c.color} />
+                      <span style={s.metricPillValue}>{c.value}</span>
+                      <span style={s.metricPillLabel}>{c.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <div style={s.metricValue}>{m.value}</div>
-                <div style={s.metricLabel}>{m.label}</div>
+
+              <div style={s.metricDivider} />
+
+              {/* Priorities */}
+              <div style={s.metricGroup}>
+                <div style={s.metricGroupLabel}>Priority</div>
+                <div style={s.metricItems}>
+                  {priorityItems.map((c) => (
+                    <div key={c.label} style={s.metricPill}>
+                      <c.icon size={11} color={c.color} />
+                      <span style={s.metricPillValue}>{c.value}</span>
+                      <span style={s.metricPillLabel}>{c.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={s.metricDivider} />
+
+              {/* Team */}
+              <div style={s.metricTeam} onClick={() => setActiveMenu("users")}>
+                <Users size={15} color="#ec4899" />
+                <span style={s.metricTeamValue}>{metrics.total_users || 0}</span>
+                <span style={s.metricTeamLabel}>Users</span>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         {/* Toolbar */}
         <div style={s.toolbar}>
