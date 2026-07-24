@@ -32,6 +32,7 @@ import {
   AlertCircle,
   Zap,
   Flame,
+  Settings,
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import { ticketService, commentService, authService } from "../../services/api";
@@ -397,17 +398,26 @@ const [profileOpen, setProfileOpen] = useState(false);
           <div style={s.divider} />
           <div
             onClick={() => setProfileOpen(true)}
-            style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", borderRadius: "8px", padding: "4px 8px 4px 4px", transition: "all 0.15s" }}
+            style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", borderRadius: "8px", padding: "4px 8px 4px 4px", transition: "all 0.15s", position: "relative" }}
+            title="Account Settings"
           >
             <Avatar name={user?.name} size={32} />
             <Text
               style={{
                 color: t.text.primary,
                 fontWeight: "600",
+                fontSize: "13px",
               }}
             >
               {user?.name}
             </Text>
+            <div style={{
+              width: "30px", height: "30px", borderRadius: "6px",
+               display: "flex", alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <Settings size={20} color={t.text.tertiary} />
+            </div>
           </div>
           <button
             onClick={() => {
