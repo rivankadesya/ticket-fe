@@ -10,6 +10,9 @@ export const getStyles = (t, isDark) => ({
     padding: '20px',
     position: 'relative',
     overflow: 'hidden',
+    width: '100%',
+    maxWidth: '100%',
+    boxSizing: 'border-box',
   },
   blob1: {
     width: '400px',

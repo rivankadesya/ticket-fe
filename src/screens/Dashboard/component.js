@@ -37,6 +37,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { ticketService, commentService, authService } from "../../services/api";
 import { connectSocket, disconnectSocket, onEvent, offEvent } from "../../services/socket";
 import DateRangePicker from "../../components/DateRangePicker";
+import Footer from '../../components/Footer';
 import KanbanColumn from '../../components/KanbanColumn';
 import KanbanCard from '../../components/KanbanCard';
 import TicketModal from '../../components/TicketModal';
@@ -372,7 +373,7 @@ const [profileOpen, setProfileOpen] = useState(false);
   return (
     <div style={s.container}>
       {/* Header */}
-      <header style={{ ...s.header, padding: isMobile ? "0 12px" : "0 24px" }}>
+      <header style={{ ...s.header, padding: isMobile ? "0 10px" : "0 16px" }}>
         <div style={s.headerLeft}>
           <div style={s.headerLogo}>
             <Ticket size={18} color="#fff" />
@@ -435,7 +436,7 @@ const [profileOpen, setProfileOpen] = useState(false);
         </div>
       </div>
 
-      <main style={{ ...s.main, padding: isMobile ? "12px" : "20px" }}>
+      <main style={{ ...s.main, padding: isMobile ? "8px" : "12px", flex: 1 }}>
         {activeMenu === "tickets" ? (
           <>
             {/* Metrics — compact info card */}
@@ -846,7 +847,7 @@ const [profileOpen, setProfileOpen] = useState(false);
               style={{
                 display: "grid",
                 gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(290px, 1fr))",
-                gap: isMobile ? "12px" : "16px",
+                gap: isMobile ? "8px" : "10px",
               }}
             >
               {statuses.map((status) => (
@@ -1298,6 +1299,7 @@ const [profileOpen, setProfileOpen] = useState(false);
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 };

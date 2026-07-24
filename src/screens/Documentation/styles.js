@@ -2,23 +2,36 @@ export const getStyles = (t, isDark) => ({
 
   container: {
     display: "flex",
-    minHeight: "100vh",
+    height: "100vh",
     backgroundColor: t.bg.primary,
     color: t.text.primary,
     fontFamily: "'Poppins', sans-serif",
+    width: "100%",
+    maxWidth: "100%",
+    overflow: "hidden",
+  },
+  contentWrap: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    minWidth: 0,
+    height: "100vh",
+    overflow: "hidden",
   },
 
   /* Sidebar */
   sidebar: {
-    width: "260px",
+    width: "220px",
     flexShrink: 0,
     backgroundColor: t.bg.secondary,
     borderRight: `1px solid ${t.border}`,
-    padding: "24px 0",
+    padding: "20px 0 0",
     position: "sticky",
     top: 0,
     height: "100vh",
     overflowY: "auto",
+    display: "flex",
+    flexDirection: "column",
   },
   sidebarHeader: {
     padding: "0 20px 16px",
@@ -83,9 +96,12 @@ export const getStyles = (t, isDark) => ({
   /* Main content */
   content: {
     flex: 1,
-    padding: "40px 48px",
-    maxWidth: "840px",
+    padding: "32px 40px",
+    maxWidth: "100%",
+    width: "100%",
     overflowY: "auto",
+    boxSizing: "border-box",
+    overflowWrap: "break-word",
   },
   pageTitle: {
     fontSize: "28px",
@@ -101,7 +117,7 @@ export const getStyles = (t, isDark) => ({
     lineHeight: 1.6,
   },
   section: {
-    marginBottom: "40px",
+    marginBottom: "28px",
   },
   sectionHeader: {
     display: "flex",
@@ -133,8 +149,8 @@ export const getStyles = (t, isDark) => ({
   paragraph: {
     fontSize: "13px",
     color: t.text.secondary,
-    lineHeight: 1.7,
-    marginBottom: "14px",
+    lineHeight: 1.6,
+    marginBottom: "10px",
   },
   subTitle: {
     fontSize: "15px",
@@ -202,6 +218,9 @@ export const getStyles = (t, isDark) => ({
     padding: "9px 14px",
     borderBottom: `1px solid ${t.borderLight || t.border}`,
     color: t.text.secondary,
+  },
+  rowAlt: {
+    backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
   },
   tdValue: {
     fontWeight: "600",
@@ -288,6 +307,87 @@ export const getStyles = (t, isDark) => ({
     marginBottom: "16px",
     whiteSpace: "pre",
     overflowX: "auto",
+  },
+
+  /* GitHub */
+  githubCard: {
+    backgroundColor: t.bg.secondary,
+    borderRadius: '12px',
+    border: `1px solid ${t.border}`,
+    padding: '18px 20px',
+    marginBottom: '24px',
+  },
+  githubCardTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '13px',
+    fontWeight: '700',
+    color: t.text.primary,
+    marginBottom: '14px',
+    paddingBottom: '10px',
+    borderBottom: `1px solid ${t.border}`,
+  },
+  githubRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginBottom: '10px',
+    fontSize: '12px',
+  },
+  githubLabel: {
+    fontWeight: '600',
+    color: t.text.tertiary,
+    minWidth: '70px',
+    fontSize: '11px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.3px',
+  },
+  githubLink: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    color: t.accent,
+    textDecoration: 'none',
+    fontWeight: '600',
+    fontSize: '12px',
+    transition: 'opacity 0.15s',
+  },
+  githubCloneRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '8px',
+  },
+  githubClone: {
+    flex: 1,
+    fontSize: '11px',
+    fontFamily: "'SF Mono', monospace",
+    color: t.text.secondary,
+    backgroundColor: t.bg.primary,
+    padding: '6px 10px',
+    borderRadius: '6px',
+    border: `1px solid ${t.border}`,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  copyBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '5px 10px',
+    borderRadius: '6px',
+    border: `1px solid ${t.border}`,
+    backgroundColor: t.bg.tertiary,
+    color: t.text.secondary,
+    fontSize: '11px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+    transition: 'all 0.15s',
   },
 
   /* Back link */

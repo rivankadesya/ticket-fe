@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Ticket, Server, Database, Shield, Wifi, Bell,
-  BookOpen, Code, Cpu, Layout, FileText, ArrowLeft,
+  Ticket, Server, Database, Shield, Wifi, Bell, Sun, Moon,
+  BookOpen, Code, Cpu, Layout, FileText, ArrowLeft, ExternalLink, Copy, Check, Menu, X,
 } from 'lucide-react';
 import { useTheme } from '../../store/themeStore';
 import { lightTheme, darkTheme } from '../../theme';
 import { getStyles } from './styles';
+import Footer from '../../components/Footer';
 
 const sections = [
   { id: 'overview', label: 'Overview', group: 'Getting Started', icon: BookOpen },
@@ -46,6 +47,13 @@ const DocumentationComponent = () => {
   const t = isDark ? darkTheme : lightTheme;
   const s = getStyles(t, isDark);
   const [activeSection, setActiveSection] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const grouped = sections.reduce((acc, section) => {
     if (!acc[section.group]) acc[section.group] = [];
@@ -55,6 +63,7 @@ const DocumentationComponent = () => {
 
   const scrollTo = (id) => {
     setActiveSection(id);
+    setSidebarOpen(false);
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -75,10 +84,58 @@ const DocumentationComponent = () => {
 
   const Tag = ({ color, label }) => <span style={s.tag(color)}>{label}</span>;
 
+  const CopyButton = ({ text }) => {
+    const [copied, setCopied] = useState(false);
+    const handleCopy = () => {
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+    return (
+      <button onClick={handleCopy} style={s.copyBtn}>
+        {copied ? <Check size={12} /> : <Copy size={12} />}
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+    );
+  };
+
   return (
     <div style={s.container}>
+{/* Mobile header */}
+      {isMobile && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+          backgroundColor: t.bg.secondary, borderBottom: `1px solid ${t.border}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '10px 14px', height: '48px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={s.sidebarLogo}><Ticket size={14} color="#fff" /></div>
+            <span style={{ fontSize: '13px', fontWeight: '700', color: t.text.primary }}>Documentation</span>
+          </div>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
+            width: '32px', height: '32px', borderRadius: '8px', border: `1px solid ${t.border}`,
+            backgroundColor: t.bg.tertiary, color: t.text.secondary, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          }}>
+            {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
+          </button>
+        </div>
+      )}
+
       {/* Sidebar */}
-      <aside style={s.sidebar}>
+      <aside style={{
+        ...s.sidebar,
+        position: isMobile ? 'fixed' : 'sticky',
+        top: isMobile ? '48px' : 0,
+        left: 0,
+        zIndex: 99,
+        transform: isMobile ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
+        transition: 'transform 0.25s ease',
+        width: isMobile ? '260px' : '220px',
+        height: isMobile ? 'calc(100vh - 48px)' : '100vh',
+        boxShadow: isMobile && sidebarOpen ? '4px 0 20px rgba(0,0,0,0.2)' : 'none',
+      }}>
         <div style={s.sidebarHeader}>
           <div style={s.sidebarLogo}>
             <Ticket size={16} color="#fff" />
@@ -107,12 +164,35 @@ const DocumentationComponent = () => {
             })}
           </div>
         ))}
+
+        <div style={{ padding: isMobile ? '12px 12px 24px' : '12px',  paddingBottom:`24px` }}>
+          <button onClick={toggleTheme} style={s.navItem(false)}>
+            {isDark ? <Sun size={13} /> : <Moon size={13} />}
+            {isDark ? 'Light Mode' : 'Dark Mode'}
+          </button>
+        </div>
+
+        {/* Backdrop for mobile */}
+        {isMobile && sidebarOpen && (
+          <div onClick={() => setSidebarOpen(false)} style={{
+            position: 'fixed', inset: 0, zIndex: -1,
+            backgroundColor: 'rgba(0,0,0,0.3)',
+          }} />
+        )}
       </aside>
 
       {/* Main */}
-      <main style={s.content}>
+      <div style={{
+          ...s.contentWrap,
+          paddingTop: isMobile ? '48px' : 0,
+        }}>
+        <main style={{
+          ...s.content,
+          flex: 1,
+          padding: isMobile ? '16px' : '32px 40px',
+        }}>
         <button onClick={() => navigate('/')} style={s.backLink}>
-          <ArrowLeft size={14} /> Back to Dashboard
+          <ArrowLeft size={14} /> {isMobile ? 'Back' : 'Back to Dashboard'}
         </button>
 
         {/* Overview */}
@@ -123,17 +203,37 @@ const DocumentationComponent = () => {
             real-time sync via Socket.IO, drag-and-drop kanban, push notifications via Pusher Beams,
             and modern glassmorphism UI.
           </p>
-          <button
-            onClick={toggleTheme}
-            style={{
-              ...s.backLink,
-              marginBottom: 0,
-              backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
-            }}
-          >
-            Toggle {isDark ? 'Light' : 'Dark'} Mode
-          </button>
-        </section>
+          <div style={s.githubCard}>
+            <div style={s.githubCardTitle}>
+              <BookOpen size={16} /> Repository
+            </div>
+
+            <div style={s.githubRow}>
+              <div style={{ ...s.githubLabel, minWidth: '80px' }}>Frontend</div>
+              <a href="https://github.com/rivankadesya/ticket-fe.git" target="_blank" rel="noopener noreferrer" style={s.githubLink}>
+                <code style={s.inlineCode}>rivankadesya/ticket-fe</code>
+                <ExternalLink size={12} />
+              </a>
+            </div>
+            <div style={{ ...s.githubCloneRow }}>
+              <code style={s.githubClone}>git clone https://github.com/rivankadesya/ticket-fe.git</code>
+              <CopyButton text="git clone https://github.com/rivankadesya/ticket-fe.git" />
+            </div>
+
+            <div style={{ ...s.githubRow, marginTop: '12px' }}>
+              <div style={{ ...s.githubLabel, minWidth: '80px' }}>Backend</div>
+              <a href="https://github.com/rivankadesya/ticket-be.git" target="_blank" rel="noopener noreferrer" style={s.githubLink}>
+                <code style={s.inlineCode}>rivankadesya/ticket-be</code>
+                <ExternalLink size={12} />
+              </a>
+            </div>
+            <div style={{ ...s.githubCloneRow, marginBottom: 0 }}>
+              <code style={s.githubClone}>git clone https://github.com/rivankadesya/ticket-be.git</code>
+              <CopyButton text="git clone https://github.com/rivankadesya/ticket-be.git" />
+            </div>
+          </div>
+
+          </section>
 
         {/* Tech Stack */}
         <section id="tech-stack" style={s.section}>
@@ -141,14 +241,21 @@ const DocumentationComponent = () => {
             <div style={s.sectionNumber}>1</div>
             <h2 style={s.sectionTitle}>Tech Stack</h2>
           </div>
-          <div style={s.techGrid}>
-            {techs.map((tech) => (
-              <div key={tech.name} style={s.techCard}>
-                <div style={s.techName}>{tech.name}</div>
-                <div style={s.techUse}>{tech.use}</div>
-                <div style={s.techVersion}>{tech.version}</div>
-              </div>
-            ))}
+          <div style={s.tableWrap}>
+            <table style={s.table}>
+              <thead><tr>
+                <th style={s.th}>Technology</th><th style={s.th}>Use</th><th style={s.th}>Version</th>
+              </tr></thead>
+              <tbody>
+                {techs.map((tech, i) => (
+                  <tr key={tech.name} style={i % 2 === 1 ? s.rowAlt : {}}>
+                    <td style={{ ...s.td, fontWeight: 700, color: t.text.primary }}>{tech.name}</td>
+                    <td style={s.td}>{tech.use}</td>
+                    <td style={s.td}>{tech.version}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -225,7 +332,7 @@ const DocumentationComponent = () => {
               </tr></thead>
               <tbody>
                 {[['id','UUID (PK)','gen_random_uuid()'],['email','VARCHAR(255)','UNIQUE'],['password','VARCHAR(255)','bcrypt hash'],['name','VARCHAR(255)',''],['role','VARCHAR(50)','user / admin'],['is_active','BOOLEAN',''],['created_at','TIMESTAMP','auto'],['updated_at','TIMESTAMP','auto']].map((r,i) => (
-                  <tr key={i}><td style={{...s.td,fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td><td style={s.td}>{r[2]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td><td style={s.td}>{r[2]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -239,7 +346,7 @@ const DocumentationComponent = () => {
               </tr></thead>
               <tbody>
                 {[['id','UUID (PK)','auto'],['title','VARCHAR(255)',''],['description','TEXT',''],['category','VARCHAR(100)',''],['priority','VARCHAR(50)','CHECK: Low/Medium/High/Critical'],['status','VARCHAR(50)','DEFAULT Open'],['created_by','UUID (FK → users)','ON DELETE CASCADE'],['created_at','TIMESTAMP','auto'],['updated_at','TIMESTAMP','auto']].map((r,i) => (
-                  <tr key={i}><td style={{...s.td,fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td><td style={s.td}>{r[2]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td><td style={s.td}>{r[2]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -253,7 +360,7 @@ const DocumentationComponent = () => {
               </tr></thead>
               <tbody>
                 {[['ticket_id','UUID (FK → tickets)','ON DELETE CASCADE'],['user_id','UUID (FK → users)','ON DELETE CASCADE']].map((r,i) => (
-                  <tr key={i}><td style={{...s.td,fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td><td style={s.td}>{r[2]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td><td style={s.td}>{r[2]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -267,7 +374,7 @@ const DocumentationComponent = () => {
               </tr></thead>
               <tbody>
                 {[['id','UUID (PK)','auto'],['ticket_id','UUID (FK → tickets)','ON DELETE CASCADE'],['user_id','UUID (FK → users)','ON DELETE CASCADE'],['comment','TEXT',''],['created_at','TIMESTAMP','auto'],['updated_at','TIMESTAMP','auto']].map((r,i) => (
-                  <tr key={i}><td style={{...s.td,fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td><td style={s.td}>{r[2]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td><td style={s.td}>{r[2]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -287,7 +394,7 @@ const DocumentationComponent = () => {
               <thead><tr><th style={s.th}>Method</th><th style={s.th}>Endpoint</th><th style={s.th}>Auth</th><th style={s.th}>Description</th></tr></thead>
               <tbody>
                 {[['POST','/register','✗','Register new user'],['POST','/login','✗','Login → JWT'],['GET','/users','✓','List active users']].map((r,i) => (
-                  <tr key={i}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -299,7 +406,7 @@ const DocumentationComponent = () => {
               <thead><tr><th style={s.th}>Method</th><th style={s.th}>Endpoint</th><th style={s.th}>Auth</th><th style={s.th}>Description</th></tr></thead>
               <tbody>
                 {[['POST','/','✓','Create ticket'],['GET','/','✓','List (filter: status, priority, dateFrom, dateTo)'],['GET','/metrics','✓','Dashboard metrics'],['GET','/:id','✓','Detail + comments'],['PUT','/:id','✓','Update (creator/assignee/admin)'],['DELETE','/:id','✓','Delete (creator/admin)']].map((r,i) => (
-                  <tr key={i}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -311,7 +418,7 @@ const DocumentationComponent = () => {
               <thead><tr><th style={s.th}>Method</th><th style={s.th}>Endpoint</th><th style={s.th}>Auth</th><th style={s.th}>Description</th></tr></thead>
               <tbody>
                 {[['POST','/:ticket_id/comments','✓','Add comment'],['GET','/:ticket_id/comments','✓','Get comments']].map((r,i) => (
-                  <tr key={i}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -362,7 +469,7 @@ const DocumentationComponent = () => {
               <thead><tr><th style={s.th}>Event</th><th style={s.th}>Trigger</th></tr></thead>
               <tbody>
                 {[['tickets:created','New ticket created'],['tickets:updated','Ticket updated (status, priority, etc)'],['tickets:deleted','Ticket deleted'],['comments:added','New comment added']].map((r,i) => (
-                  <tr key={i}><td style={{...s.td,fontFamily:'monospace',fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontFamily:'monospace',fontWeight:600,color:t.text.primary}}>{r[0]}</td><td style={s.td}>{r[1]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -556,6 +663,8 @@ npx pm2 startup`}</div>
 }`}</div>
         </section>
       </main>
+      <Footer />
+      </div>
     </div>
   );
 };

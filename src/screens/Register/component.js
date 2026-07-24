@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, UserPlus, Ticket, Eye, EyeOff } from 'lucide-react';
+import Footer from '../../components/Footer';
 import { AuthContext } from '../../context/AuthContext';
 import { useTheme } from '../../store/themeStore';
 import { lightTheme, darkTheme } from '../../theme';
@@ -73,10 +74,14 @@ const RegisterComponent = () => {
     <div style={{
       ...s.container,
       padding: isMobile ? '8px' : '20px',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      alignItems: 'center',
     }}>
       <div style={s.blob1} />
       <div style={s.blob2} />
 
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
       <div className="reg-inner" style={{
         ...s.innerContainer,
         flexDirection: isMobile ? 'column' : 'row',
@@ -228,6 +233,8 @@ const RegisterComponent = () => {
           </p>
         </div>
       </div>
+      </div>
+      <Footer minimal />
     </div>
   );
 };

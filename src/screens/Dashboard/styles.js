@@ -10,6 +10,11 @@ export const getStyles = (
     color: t.text.primary,
     fontFamily: "'Poppins', sans-serif",
     transition: "background-color 0.3s ease, color 0.3s ease",
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    maxWidth: "100%",
+    overflowX: "hidden",
   },
   loader: {
     display: "flex",
@@ -64,9 +69,11 @@ export const getStyles = (
     margin: "0 6px",
   },
   main: {
-    padding: "20px",
+    padding: "12px",
     maxWidth: "1400px",
     margin: "0 auto",
+    width: "100%",
+    boxSizing: "border-box",
   },
   subHeader: {
     backgroundColor: t.bg.secondary,
@@ -89,16 +96,16 @@ export const getStyles = (
   }),
   metricsCard: {
     backgroundColor: t.bg.secondary,
-    borderRadius: "16px",
+    borderRadius: "12px",
     border: `1px solid ${t.border}`,
-    marginBottom: "20px",
+    marginBottom: "12px",
     overflow: "hidden",
   },
   metricsBody: {
     display: "flex",
     alignItems: "center",
-    padding: "14px 20px",
-    gap: "8px",
+    padding: "10px 14px",
+    gap: "6px",
     flexWrap: "wrap",
   },
   metricHero: {
@@ -199,10 +206,10 @@ export const getStyles = (
   },
   toolbar: {
     backgroundColor: t.bg.secondary,
-    borderRadius: "16px",
+    borderRadius: "12px",
     border: `1.5px solid ${t.border}`,
-    padding: "16px 20px",
-    marginBottom: "20px",
+    padding: "12px 14px",
+    marginBottom: "12px",
   },
   toolbarContent: {
     display: "flex",
@@ -409,7 +416,7 @@ export const getStyles = (
     minWidth: "780px",
   },
   th: (isAction = false) => ({
-    padding: "14px 18px",
+    padding: "10px 14px",
     textAlign: "left",
     fontSize: "11px",
     fontWeight: "700",
@@ -426,7 +433,7 @@ export const getStyles = (
     transition: "all 0.15s ease",
   },
   td: {
-    padding: "14px 18px",
+    padding: "10px 14px",
   },
   categoryBadge: {
     fontSize: "10px",
