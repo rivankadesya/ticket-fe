@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   DndContext,
@@ -36,6 +36,7 @@ import {
 import { AuthContext } from "../../context/AuthContext";
 import { ticketService, commentService, authService } from "../../services/api";
 import { connectSocket, disconnectSocket, onEvent, offEvent } from "../../services/socket";
+import DateRangePicker from "../../components/DateRangePicker";
 import KanbanColumn from '../../components/KanbanColumn';
 import KanbanCard from '../../components/KanbanCard';
 import TicketModal from '../../components/TicketModal';
@@ -109,6 +110,7 @@ const DashboardComponent = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState([]);
   const [filterPriority, setFilterPriority] = useState([]);
+  const [dateRange, setDateRange] = useState([null, null]);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("table");
   const [activeId, setActiveId] = useState(null);
@@ -127,6 +129,10 @@ const DashboardComponent = () => {
 const [profileOpen, setProfileOpen] = useState(false);
 
   const [debouncedSearch] = useDebounce(searchQuery, 300);
+
+  const dateRangeRef = useRef(dateRange);
+  dateRangeRef.current = dateRange;
+
   const { isDark, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   useEffect(() => {
@@ -153,9 +159,16 @@ const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     fetchData(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (metrics) fetchData(false, dateRange);
+  }, [dateRange]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     connectSocket();
 
-    const ticketCb = () => fetchData(false);
+    const ticketCb = () => fetchData(false, dateRangeRef.current);
     onEvent('tickets:created', ticketCb);
     onEvent('tickets:updated', ticketCb);
     onEvent('tickets:deleted', ticketCb);
@@ -176,12 +189,19 @@ const [profileOpen, setProfileOpen] = useState(false);
     }
   }, [detailTicket]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const fetchData = async (showLoader = false) => {
+  const fmtDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+  const fetchData = async (showLoader = false, forcedDates) => {
     if (showLoader) setLoading(true);
     try {
+      const [start, end] = forcedDates || dateRange;
+      const ticketParams = {};
+      if (start) ticketParams.dateFrom = fmtDate(start);
+      if (end) ticketParams.dateTo = fmtDate(end);
+
       const [metricsRes, ticketsRes, usersRes] = await Promise.all([
         ticketService.getDashboardMetrics(),
-        ticketService.getTickets({}),
+        ticketService.getTickets(ticketParams),
         authService.getUsers(),
       ]);
       setMetrics(metricsRes.data.metrics);
@@ -590,7 +610,30 @@ const [profileOpen, setProfileOpen] = useState(false);
                 ))}
               </div>
 
-              {(filterStatus.length > 0 || filterPriority.length > 0) && (
+              <div style={{ ...s.filterGroup, marginTop: "10px" }}>
+                <span style={s.filterGroupLabel}>Date Range</span>
+                <DateRangePicker
+                  startDate={dateRange[0]}
+                  endDate={dateRange[1]}
+                  onChange={(update) => {
+                    setDateRange(update);
+                    fetchData(false, update);
+                  }}
+                  theme={{
+                    border: t.border,
+                    bgPrimary: t.bg.primary,
+                    textPrimary: t.text.primary,
+                    textTertiary: t.text.tertiary,
+                  }}
+                />
+                {dateRange[0] && (
+                  <button onClick={() => { setDateRange([null, null]); fetchData(false, [null, null]); }} style={s.filterClearBtn}>
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {(filterStatus.length > 0 || filterPriority.length > 0 || dateRange[0]) && (
                 <div style={s.filterActiveRow}>
                   {filterStatus.map((st) => (
                     <span key={st} style={s.filterActiveTag(statusColors[st])}>
@@ -604,7 +647,8 @@ const [profileOpen, setProfileOpen] = useState(false);
                       <X size={10} style={{ cursor: "pointer" }} onClick={() => setFilterPriority((prev) => prev.filter((pl) => pl !== p))} />
                     </span>
                   ))}
-                  <button onClick={() => { setFilterStatus([]); setFilterPriority([]); }} style={s.filterClearBtn}>
+                  {dateRange[0] && <span style={s.filterActiveTag("#6366f1")}>{dateRange[0].toLocaleDateString()} {dateRange[1] ? `— ${dateRange[1].toLocaleDateString()}` : ""} <X size={10} style={{ cursor: "pointer" }} onClick={() => { setDateRange([null, null]); fetchData(false, [null, null]); }} /></span>}
+                  <button onClick={() => { setFilterStatus([]); setFilterPriority([]); setDateRange([null, null]); fetchData(false, [null, null]); }} style={s.filterClearBtn}>
                     Clear all
                   </button>
                 </div>
