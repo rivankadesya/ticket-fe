@@ -103,21 +103,12 @@ const DocumentationComponent = () => {
     <div style={s.container}>
 {/* Mobile header */}
       {isMobile && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          backgroundColor: t.bg.secondary, borderBottom: `1px solid ${t.border}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '10px 14px', height: '48px',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ ...s.mobileHeader, backgroundColor: t.bg.secondary, borderBottom: `1px solid ${t.border}` }}>
+          <div style={s.mobileHeaderTitle}>
             <div style={s.sidebarLogo}><Ticket size={14} color="#fff" /></div>
-            <span style={{ fontSize: '13px', fontWeight: '700', color: t.text.primary }}>Documentation</span>
+            <span style={{ ...s.mobileHeaderText, color: t.text.primary }}>Documentation</span>
           </div>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
-            width: '32px', height: '32px', borderRadius: '8px', border: `1px solid ${t.border}`,
-            backgroundColor: t.bg.tertiary, color: t.text.secondary, display: 'flex',
-            alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-          }}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ ...s.mobileToggle, border: `1px solid ${t.border}`, backgroundColor: t.bg.tertiary, color: t.text.secondary }}>
             {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
         </div>
@@ -126,15 +117,12 @@ const DocumentationComponent = () => {
       {/* Sidebar */}
       <aside style={{
         ...s.sidebar,
-        position: isMobile ? 'fixed' : 'sticky',
-        top: isMobile ? '48px' : 0,
-        left: 0,
-        zIndex: 99,
-        transform: isMobile ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
-        transition: 'transform 0.25s ease',
-        width: isMobile ? '260px' : '220px',
-        height: isMobile ? 'calc(100vh - 48px)' : '100vh',
-        boxShadow: isMobile && sidebarOpen ? '4px 0 20px rgba(0,0,0,0.2)' : 'none',
+        ...(isMobile ? {
+          position: 'fixed', top: '48px', left: 0, zIndex: 99,
+          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+          width: '260px', height: 'calc(100vh - 48px)',
+          boxShadow: sidebarOpen ? '4px 0 20px rgba(0,0,0,0.2)' : 'none',
+        } : {}),
       }}>
         <div style={s.sidebarHeader}>
           <div style={s.sidebarLogo}>
@@ -165,7 +153,7 @@ const DocumentationComponent = () => {
           </div>
         ))}
 
-        <div style={{ padding: isMobile ? '12px 12px 24px' : '12px',  paddingBottom:`24px` }}>
+        <div style={{ ...s.sidebarBottom, padding: isMobile ? '12px 12px 24px' : '12px' }}>
           <button onClick={toggleTheme} style={s.navItem(false)}>
             {isDark ? <Sun size={13} /> : <Moon size={13} />}
             {isDark ? 'Light Mode' : 'Dark Mode'}
@@ -173,12 +161,7 @@ const DocumentationComponent = () => {
         </div>
 
         {/* Backdrop for mobile */}
-        {isMobile && sidebarOpen && (
-          <div onClick={() => setSidebarOpen(false)} style={{
-            position: 'fixed', inset: 0, zIndex: -1,
-            backgroundColor: 'rgba(0,0,0,0.3)',
-          }} />
-        )}
+        {isMobile && sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={s.mobileBackdrop} />}
       </aside>
 
       {/* Main */}
@@ -249,7 +232,7 @@ const DocumentationComponent = () => {
               <tbody>
                 {techs.map((tech, i) => (
                   <tr key={tech.name} style={i % 2 === 1 ? s.rowAlt : {}}>
-                    <td style={{ ...s.td, fontWeight: 700, color: t.text.primary }}>{tech.name}</td>
+                    <td style={{ ...s.td, ...s.tdBold }}>{tech.name}</td>
                     <td style={s.td}>{tech.use}</td>
                     <td style={s.td}>{tech.version}</td>
                   </tr>
@@ -266,9 +249,9 @@ const DocumentationComponent = () => {
             <h2 style={s.sectionTitle}>Architecture</h2>
           </div>
           <p style={s.paragraph}>
-            Aplikasi menggunakan arsitektur <strong>Client-Server</strong> dengan REST API dan WebSocket.
-            Frontend React berkomunikasi dengan backend Express melalui HTTP (Axios) untuk data CRUD
-            dan Socket.IO untuk update real-time.
+            The application uses a <strong>Client-Server</strong> architecture with REST API and WebSocket.
+            The React frontend communicates with the Express backend via HTTP (Axios) for CRUD operations
+            and Socket.IO for real-time updates.
           </p>
           <div style={s.codeBlock}>
 {`┌──────────────┐         HTTP (REST)         ┌──────────────┐
@@ -393,8 +376,8 @@ const DocumentationComponent = () => {
             <table style={s.table}>
               <thead><tr><th style={s.th}>Method</th><th style={s.th}>Endpoint</th><th style={s.th}>Auth</th><th style={s.th}>Description</th></tr></thead>
               <tbody>
-                {[['POST','/register','✗','Register new user'],['POST','/login','✗','Login → JWT'],['GET','/users','✓','List active users']].map((r,i) => (
-                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
+                {[['POST','/register','✗','Register new user'],['POST','/login','✗','Login → JWT'],['GET','/users','✓','List active users'],['GET','/me','✓','Get my profile'],['PUT','/profile','✓','Update name'],['PUT','/password','✓','Change password']].map((r,i) => (
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td, ...s.tdBold}}>{r[0]}</td><td style={{...s.td, ...s.tdCode}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -405,8 +388,8 @@ const DocumentationComponent = () => {
             <table style={s.table}>
               <thead><tr><th style={s.th}>Method</th><th style={s.th}>Endpoint</th><th style={s.th}>Auth</th><th style={s.th}>Description</th></tr></thead>
               <tbody>
-                {[['POST','/','✓','Create ticket'],['GET','/','✓','List (filter: status, priority, dateFrom, dateTo)'],['GET','/metrics','✓','Dashboard metrics'],['GET','/:id','✓','Detail + comments'],['PUT','/:id','✓','Update (creator/assignee/admin)'],['DELETE','/:id','✓','Delete (creator/admin)']].map((r,i) => (
-                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
+                {[['POST','/','✓','Create ticket (title, category, priority, status, assignees)'],['GET','/','✓','List (filter: status, priority)'],['GET','/metrics','✓','Dashboard metrics'],['GET','/:id','✓','Detail + comments'],['PUT','/:id','✓','Update (creator/assignee/admin)'],['DELETE','/:id','✓','Delete (creator/admin)']].map((r,i) => (
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td, ...s.tdBold}}>{r[0]}</td><td style={{...s.td, ...s.tdCode}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -418,7 +401,7 @@ const DocumentationComponent = () => {
               <thead><tr><th style={s.th}>Method</th><th style={s.th}>Endpoint</th><th style={s.th}>Auth</th><th style={s.th}>Description</th></tr></thead>
               <tbody>
                 {[['POST','/:ticket_id/comments','✓','Add comment'],['GET','/:ticket_id/comments','✓','Get comments']].map((r,i) => (
-                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td,fontWeight:700,color:t.text.primary}}>{r[0]}</td><td style={{...s.td,fontFamily:'monospace',fontSize:'11px'}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
+                  <tr key={i} style={i % 2 === 1 ? s.rowAlt : {}}><td style={{...s.td, ...s.tdBold}}>{r[0]}</td><td style={{...s.td, ...s.tdCode}}><code>{r[1]}</code></td><td style={s.td}>{r[2]}</td><td style={s.td}>{r[3]}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -454,8 +437,8 @@ const DocumentationComponent = () => {
             <h2 style={s.sectionTitle}>Real-Time Sync (Socket.IO)</h2>
           </div>
           <p style={s.paragraph}>
-            Menggantikan short-polling dengan <strong>Socket.IO</strong> WebSocket bidirectional.
-            Setiap perubahan data langsung dikirim ke semua klien tanpa delay.
+            Replaces short-polling with <strong>Socket.IO</strong> bidirectional WebSocket.
+            Every data change is instantly sent to all connected clients without delay.
           </p>
           <div style={s.codeBlock}>
 {`┌──────────────┐                              ┌──────────────┐
@@ -483,8 +466,8 @@ const DocumentationComponent = () => {
             <h2 style={s.sectionTitle}>Push Notification (Pusher Beams)</h2>
           </div>
           <p style={s.paragraph}>
-            <strong>Pusher Beams</strong> mengirim notifikasi push browser ke pengguna yang ditugaskan.
-            Notifikasi muncul sebagai banner meskipun tab dashboard tidak aktif.
+            <strong>Pusher Beams</strong> sends browser push notifications to assigned users.
+            Notifications appear as banners even when the dashboard tab is inactive.
           </p>
           <div style={s.subSubTitle}>Flow:</div>
           <ul style={s.list}>
@@ -502,7 +485,7 @@ const DocumentationComponent = () => {
             <h2 style={s.sectionTitle}>Database Migration</h2>
           </div>
           <p style={s.paragraph}>
-            Perubahan skema dikelola melalui file SQL migration. Auto-create database jika belum ada.
+            Schema changes are managed via SQL migration files. Auto-create database if not exists.
           </p>
           <div style={s.codeBlock}>
 {`# Run all pending migrations
@@ -556,15 +539,15 @@ touch src/migrations/002_add_column.sql
 
           <h3 style={s.subTitle}>1. Real-Time via Socket.IO</h3>
           <p style={s.paragraph}>
-            Dashboard subscribe ke event <code style={s.inlineCode}>tickets:created/updated/deleted</code> dan{' '}
-            <code style={s.inlineCode}>comments:added</code>. Data refresh instan tanpa polling.
+            Dashboard subscribes to <code style={s.inlineCode}>tickets:created/updated/deleted</code> and{' '}
+            <code style={s.inlineCode}>comments:added</code> events. Data refreshes instantly without polling.
           </p>
 
           <h3 style={s.subTitle}>2. Drag-and-Drop Kanban</h3>
           <p style={s.paragraph}>
-            <code style={s.inlineCode}>@dnd-kit/core</code> dengan{' '}
-            <code style={s.inlineCode}>activationConstraint.distance: 8</code> — drag hanya aktif setelah
-            geser 8px, klik biasa tetap berfungsi untuk detail/edit/hapus.
+            <code style={s.inlineCode}>@dnd-kit/core</code> with{' '}
+            <code style={s.inlineCode}>activationConstraint.distance: 8</code> — drag activated after
+            8px movement, regular click still works for detail/edit/delete.
           </p>
 
           <h3 style={s.subTitle}>3. Priority Indicators</h3>
@@ -579,12 +562,12 @@ touch src/migrations/002_add_column.sql
 
           <h3 style={s.subTitle}>4. Searchable Assignee Dropdown</h3>
           <p style={s.paragraph}>
-            Multi-select dengan live search by name/email, avatar + name display.
+            Multi-select with live search by name/email, avatar + name display.
           </p>
 
           <h3 style={s.subTitle}>5. Dark/Light Theme</h3>
           <p style={s.paragraph}>
-            Zustand store persist ke <code style={s.inlineCode}>localStorage</code>. Full glassmorphism
+            Zustand store persists to <code style={s.inlineCode}>localStorage</code>. Full glassmorphism
             with 90+ token design system.
           </p>
 
@@ -601,7 +584,7 @@ touch src/migrations/002_add_column.sql
 
           <h3 style={s.subTitle}>8. Users Directory</h3>
           <p style={s.paragraph}>
-            Tab "Users" menampilkan daftar user dengan avatar, role, status active.
+            Tab "Users" displays a list of users with avatar, role, and active status.
           </p>
         </section>
 
@@ -616,15 +599,15 @@ touch src/migrations/002_add_column.sql
           <div style={s.codeBlock}>
 {`cd backend
 npm install
-cp .env.example .env  # Configure DB, JWT, Pusher
-npm run migrate       # Create tables
+# Create .env file with DB, JWT, Pusher config
+npm run migrate       # Run database migrations
 npm run dev           # Start at :5001`}</div>
 
           <h3 style={s.subTitle}>Frontend</h3>
           <div style={s.codeBlock}>
 {`cd frontend
 npm install
-cp .env.example .env  # Set API URL, Pusher key
+# Create .env file with API URL and Pusher key
 npm start             # Start at :3000`}</div>
         </section>
 

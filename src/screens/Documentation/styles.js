@@ -390,6 +390,62 @@ export const getStyles = (t, isDark) => ({
     transition: 'all 0.15s',
   },
 
+  /* Mobile */
+  mobileHeader: {
+    position: 'fixed',
+    top: 0, left: 0, right: 0,
+    zIndex: 100,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '10px 14px',
+    height: '48px',
+  },
+  mobileHeaderTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  mobileHeaderText: {
+    fontSize: '13px',
+    fontWeight: '700',
+  },
+  mobileToggle: {
+    width: '32px', height: '32px', borderRadius: '8px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    cursor: 'pointer',
+  },
+  sidebarMobile: {
+    position: 'fixed',
+    top: '48px', left: 0,
+    zIndex: 99,
+    width: '260px',
+    height: 'calc(100vh - 48px)',
+    transition: 'transform 0.25s ease',
+  },
+  mobileBackdrop: {
+    position: 'fixed', inset: 0, zIndex: -1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  sidebarBottom: {
+    marginTop: 'auto',
+    borderTop: `1px solid ${t.border}`,
+  },
+
+  /* Table cell variants */
+  tdPrimary: {
+    fontWeight: 600,
+    color: t.text.primary,
+  },
+  tdBold: {
+    fontWeight: 700,
+    color: t.text.primary,
+  },
+  tdCode: {
+    fontFamily: "'SF Mono', monospace",
+    fontSize: "11px",
+  },
+
   /* Back link */
   backLink: {
     display: "inline-flex",

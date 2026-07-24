@@ -7,7 +7,7 @@
 
 <div align="center">
   <h1>🎫 IT Support Tickets — Frontend</h1>
-  <p><strong>Dashboard tiket IT Support</strong> — real-time, drag-and-drop kanban, push notification</p>
+  <p><strong>IT Support Ticket Dashboard</strong> — real-time, drag-and-drop kanban, push notifications</p>
 
   <p>
     <a href="https://github.com/rivankadesya/ticket-fe.git"><img src="https://img.shields.io/github/stars/rivankadesya/ticket-fe?style=flat-square&label=Stars&color=yellow" /></a>
@@ -18,15 +18,15 @@
 
 ---
 
-## 📋 Daftar Isi
+## 📋 Table of Contents
 
 - [Clone Repository](#-clone-repository)
-- [Teknologi](#-teknologi)
-- [Fitur](#-fitur)
-- [Struktur Folder](#-struktur-folder)
-- [Instalasi](#-instalasi)
+- [Technologies](#-technologies)
+- [Features](#-features)
+- [Folder Structure](#-folder-structure)
+- [Installation](#-installation)
 - [Deployment](#-deployment)
-- [Catatan](#-catatan)
+- [Notes](#-notes)
 
 ---
 
@@ -41,81 +41,81 @@ cd ticket-fe
 
 ---
 
-## 🛠️ Teknologi
+## 🛠️ Technologies
 
-| Teknologi | Versi | Kegunaan |
+| Technology | Version | Purpose |
 |---|---|---|
-| **React** | 19 | Framework UI |
-| **Zustand** | 5 | State management tema |
+| **React** | 19 | UI Framework |
+| **Zustand** | 5 | Theme state management |
 | **@dnd-kit** | 6 | Drag-and-drop kanban |
 | **Axios** | 1.18 | HTTP client |
-| **React Router DOM** | 7 | Routing SPA |
+| **React Router DOM** | 7 | SPA routing |
 | **Lucide React** | 1.25 | Icon set |
 | **Socket.IO Client** | 4.8 | WebSocket real-time |
 | **@pusher/push-notifications-web** | 1.1 | Push notification |
-| **use-debounce** | — | Debounce pencarian |
+| **use-debounce** | — | Search debounce |
 
 ---
 
-## ✨ Fitur
+## ✨ Features
 
 ### 🔄 Real-Time Sync (Socket.IO)
-Dashboard menerima update tiket secara instan — tanpa refresh halaman.
+Dashboard receives ticket updates instantly — no page refresh needed.
 
 | Event | Trigger |
 |---|---|
-| `tickets:created` | Tiket baru dibuat |
-| `tickets:updated` | Tiket diperbarui |
-| `tickets:deleted` | Tiket dihapus |
-| `comments:added` | Komentar baru |
+| `tickets:created` | New ticket created |
+| `tickets:updated` | Ticket updated |
+| `tickets:deleted` | Ticket deleted |
+| `comments:added` | New comment added |
 
 ### 📋 Drag-and-Drop Kanban
-Pindahkan tiket antar status (Open → In Progress → Resolved → Closed) dengan drag-and-drop. Klik biasa untuk detail, drag untuk pindah status.
+Move tickets between statuses (Open → In Progress → Resolved → Closed) with drag-and-drop. Regular click for details, drag to change status.
 
-### 🏷️ Add Ticket per Kolom
-Setiap kolom kanban punya tombol **+ Add Ticket** — status otomatis terisi sesuai kolom.
+### 🏷️ Add Ticket per Column
+Each kanban column has a **+ Add Ticket** button — status is automatically set based on the column.
 
-### 🔍 Filter Multi-Pill
-Filter status & priority dengan chip interaktif. Pilih banyak filter sekaligus, aktifkan/nonaktifkan dengan satu klik.
+### 🔍 Multi-Pill Filter
+Filter by status & priority with interactive chips. Select multiple filters at once, toggle on/off with one click.
 
 ### 🎨 Priority Colors
 
-| Priority | Warna | Icon |
+| Priority | Color | Icon |
 |---|---|---|
-| Low | 🟢 Hijau `#22c55e` | `ArrowDown` |
-| Medium | 🟡 Kuning `#eab308` | `AlertCircle` |
-| High | 🟠 Oranye `#f97316` | `Zap` |
-| Critical | 🔴 Merah `#ef4444` | `Flame` |
+| Low | 🟢 Green `#22c55e` | `ArrowDown` |
+| Medium | 🟡 Yellow `#eab308` | `AlertCircle` |
+| High | 🟠 Orange `#f97316` | `Zap` |
+| Critical | 🔴 Red `#ef4444` | `Flame` |
 
 ### ⚙️ Custom Dropdown
-Category, Priority, Status, dan Assignees pakai custom dropdown — bukan native `<select>`.
+Category, Priority, Status, and Assignees use custom dropdowns — not native `<select>`.
 
 ### 👤 Edit Profile
-Klik avatar/nama di header → edit nama atau ganti password.
+Click avatar/name in header → edit name or change password.
 
 ### 🌗 Dark Mode
-Toggle dark/light theme tersimpan otomatis di localStorage.
+Toggle dark/light theme, automatically saved to localStorage.
 
 ### 📱 Responsive
-Tampilan menyesuaikan desktop, tablet, dan handphone.
+Layout adapts to desktop, tablet, and mobile screens.
 
 ---
 
-## 📁 Struktur Folder
+## 📁 Folder Structure
 
 ```
 src/
-├── components/          # Komponen reusable
-│   ├── KanbanColumn.js  # Kolom kanban + tombol add
-│   ├── KanbanCard.js    # Kartu tiket (draggable)
-│   ├── TicketModal.js   # Modal create/edit tiket
-│   ├── ProfileModal.js  # Modal edit profile
-│   └── ConfirmModal.js  # Modal konfirmasi hapus
+├── components/          # Reusable components
+│   ├── KanbanColumn.js  # Kanban column + add button
+│   ├── KanbanCard.js    # Ticket card (draggable)
+│   ├── TicketModal.js   # Create/edit ticket modal
+│   ├── ProfileModal.js  # Profile edit modal
+│   └── ConfirmModal.js  # Delete confirmation modal
 │
-├── screens/             # Halaman
-│   ├── Login/           # Login (split-screen + animasi)
+├── screens/             # Pages
+│   ├── Login/           # Login (split-screen + animations)
 │   ├── Register/        # Register
-│   └── Dashboard/       # Dashboard utama (metrik, kanban, filter)
+│   └── Dashboard/       # Main dashboard (metrics, kanban, filters)
 │
 ├── services/
 │   ├── api.js           # Axios + service functions
@@ -125,14 +125,14 @@ src/
 ├── store/
 │   └── themeStore.js    # Zustand dark/light mode
 │
-├── theme.js             # Token warna + priority/status colors
-├── index.css            # Font Poppins, animasi, reset
+├── theme.js             # Color tokens + priority/status colors
+├── index.css            # Poppins font, animations, reset
 └── App.js               # Root component + routing
 ```
 
 ---
 
-## 🚀 Instalasi
+## 🚀 Installation
 
 ### Development
 
@@ -142,18 +142,18 @@ cd ticket-fe
 npm install
 ```
 
-Buat file `.env`:
+Create `.env` file:
 ```env
 REACT_APP_API_BASE_URL=http://localhost:5001/api
 REACT_APP_PUSHER_BEAMS_INSTANCE_ID=
 ```
 
-Jalankan:
+Run:
 ```bash
 npm start
 ```
 
-Aplikasi di `http://localhost:3000`.
+App at `http://localhost:3000`.
 
 ### Production Build
 
@@ -161,7 +161,7 @@ Aplikasi di `http://localhost:3000`.
 npm run build
 ```
 
-Hasil build di folder `build/`.
+Build output in `build/` folder.
 
 ---
 
@@ -170,7 +170,7 @@ Hasil build di folder `build/`.
 ```nginx
 server {
     listen 80;
-    server_name domain-anda.com;
+    server_name your-domain.com;
     root /var/www/ticket-fe/build;
     index index.html;
 
@@ -180,20 +180,20 @@ server {
 }
 ```
 
-Pastikan `REACT_APP_API_BASE_URL` diisi domain backend.
+Make sure `REACT_APP_API_BASE_URL` points to your backend domain.
 
 ---
 
-## 📝 Catatan
+## 📝 Notes
 
-- **Backend harus running** sebelum frontend dijalankan.
-- **Socket.IO** auto-connect ke server dari `REACT_APP_API_BASE_URL` (tanpa suffix `/api`).
-- **Pusher Beams** opsional.
-- Font: **Poppins** dari Google Fonts.
-- **Custom scrollbar** menyesuaikan tema.
+- **Backend must be running** before starting the frontend.
+- **Socket.IO** auto-connects to the server from `REACT_APP_API_BASE_URL` (without `/api` suffix).
+- **Pusher Beams** is optional.
+- Font: **Poppins** from Google Fonts.
+- **Custom scrollbar** adapts to theme.
 
 ---
 
 <p align="center">
-  Dibuat dengan ❤️ oleh <a href="https://github.com/rivankadesya">rivankadesya</a>
+  Made with ❤️ by <a href="https://github.com/rivankadesya">rivankadesya</a>
 </p>
