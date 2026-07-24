@@ -66,8 +66,8 @@ export const statusColors = {
 };
 
 export const priorityColors = {
-  Low: '#6366f1',
-  Medium: '#f59e0b',
+  Low: '#22c55e',
+  Medium: '#eab308',
   High: '#f97316',
   Critical: '#ef4444',
 };

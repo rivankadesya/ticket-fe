@@ -3,7 +3,7 @@ import { X, Save, Loader2, Users, Search, ChevronDown } from 'lucide-react';
 import { authService } from '../services/api';
 import { getStyles } from './TicketModal.styles';
 
-const TicketModal = ({ isOpen, onClose, onSave, ticket, theme: t }) => {
+const TicketModal = ({ isOpen, onClose, onSave, ticket, theme: t, defaultStatus }) => {
   const [formData, setFormData] = useState({
     title: '', description: '', category: '', priority: 'Medium', assigned_to: [],
   });
@@ -52,12 +52,12 @@ const TicketModal = ({ isOpen, onClose, onSave, ticket, theme: t }) => {
         assigned_to: Array.isArray(ticket.assignees) ? ticket.assignees.map(u => u.id) : [],
       });
     } else {
-      setFormData({ title: '', description: '', category: '', priority: 'Medium', assigned_to: [] });
+      setFormData({ title: '', description: '', category: '', priority: 'Medium', status: defaultStatus || 'Open', assigned_to: [] });
     }
     setError('');
     setDropdownOpen(false);
     setSearchQuery('');
-  }, [ticket, isOpen]);
+  }, [ticket, isOpen, defaultStatus]);
 
   if (!isOpen) return null;
 

@@ -120,6 +120,7 @@ const DashboardComponent = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [activeMenu, setActiveMenu] = useState("tickets"); // "tickets" or "users"
+  const [defaultStatus, setDefaultStatus] = useState(null);
   const [users, setUsers] = useState([]);
 
   const { isDark, toggleTheme } = useTheme();
@@ -235,6 +236,12 @@ const DashboardComponent = () => {
 
   const openCreate = () => {
     setEditTicket(null);
+    setDefaultStatus(null);
+    setModalOpen(true);
+  };
+  const openCreateWithStatus = (status) => {
+    setEditTicket(null);
+    setDefaultStatus(status);
     setModalOpen(true);
   };
   const openEdit = (ticket) => {
@@ -765,6 +772,7 @@ const DashboardComponent = () => {
                   onEdit={openEdit}
                   onDelete={handleDelete}
                   onDetail={openDetail}
+                  onAdd={openCreateWithStatus}
                 />
               ))}
             </div>
@@ -853,10 +861,11 @@ const DashboardComponent = () => {
       {/* Create / Edit Modal */}
       <TicketModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => { setModalOpen(false); setDefaultStatus(null); }}
         onSave={handleSave}
         ticket={editTicket}
         theme={t}
+        defaultStatus={defaultStatus}
       />
 
       {/* Confirm Delete Modal */}
@@ -1102,28 +1111,33 @@ const DashboardComponent = () => {
               >
                 <div style={s.commentsHeader}>
                   <MessageSquare size={15} color={t.text.tertiary} />
-                  <Text style={{ ...s.propertyText, margin: 0 }}>
+                  <Text style={{ ...s.propertyText, margin: 0, fontWeight: "600" }}>
                     Comments ({comments.length})
                   </Text>
                 </div>
 
                 {/* Comment Input */}
-                <div style={s.commentInputWrapper}>
-                  <Avatar name={user?.name} size={28} />
-                  <div style={s.commentTextareaWrapper}>
+                <div style={s.commentInputCard}>
+                  <div style={s.commentInputHeader}>
+                    <Avatar name={user?.name} size={22} />
                     <textarea
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Write a comment..."
-                      rows={2}
+                      rows={1}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
                           handleAddComment();
                         }
                       }}
-                      style={s.commentTextarea}
+                      style={s.commentInputTextarea}
                     />
+                  </div>
+                  <div style={s.commentInputFooter}>
+                    <span style={s.commentInputHint}>
+                      Enter to send · Shift+Enter for new line
+                    </span>
                     <button
                       onClick={handleAddComment}
                       disabled={!newComment.trim() || commentLoading}
@@ -1139,37 +1153,46 @@ const DashboardComponent = () => {
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "14px",
+                    gap: "12px",
                   }}
                 >
                   {comments.length === 0 && (
                     <div
                       style={{
                         textAlign: "center",
-                        padding: "30px 20px",
+                        padding: "28px 20px",
                         color: t.text.tertiary,
                         fontSize: "13px",
                         border: `1.5px dashed ${t.border}`,
                         borderRadius: "12px",
+                        lineHeight: 1.6,
                       }}
                     >
-                      No comments yet. Be the first to comment.
+                      <MessageSquare size={18} style={{ opacity: 0.3, marginBottom: 8 }} />
+                      <div>No comments yet.</div>
+                      <div style={{ fontSize: "12px", marginTop: 2 }}>Be the first to share your thoughts.</div>
                     </div>
                   )}
-                  {comments.map((c) => (
-                    <div key={c.id} style={s.commentItem}>
-                      <Avatar name={c.user_name} size={28} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={s.commentUserRow}>
-                          <span style={s.commentUserName}>{c.user_name}</span>
-                          <span style={s.commentTime}>
-                            {timeAgo(c.created_at)}
-                          </span>
+                  {comments.map((c) => {
+                    const colors = ["#6366f1", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#06b6d4", "#f97316"];
+                    const avatarColor = colors[c.user_name ? c.user_name.charCodeAt(0) % colors.length : 0];
+                    const initials = (c.user_name || "?")
+                      .split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+                    return (
+                      <div key={c.id} style={s.commentItem}>
+                        <div style={{ ...s.commentAvatar, backgroundColor: avatarColor }}>
+                          {initials}
                         </div>
-                        <div style={s.commentBody}>{c.comment}</div>
+                        <div style={s.commentContent}>
+                          <div style={s.commentUserRow}>
+                            <span style={s.commentUserName}>{c.user_name}</span>
+                            <span style={s.commentTime}>{timeAgo(c.created_at)}</span>
+                          </div>
+                          <div style={s.commentBody}>{c.comment}</div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>

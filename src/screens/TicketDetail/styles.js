@@ -2,7 +2,7 @@ const styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: '#f5f5f5',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "'Poppins', sans-serif",
   },
   header: {
     backgroundColor: '#fff',
@@ -107,14 +107,14 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '4px',
     fontSize: '14px',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "'Poppins', sans-serif",
   },
   textarea: {
     padding: '10px 12px',
     border: '1px solid #ddd',
     borderRadius: '4px',
     fontSize: '14px',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "'Poppins', sans-serif",
     resize: 'vertical',
   },
   select: {
@@ -122,7 +122,7 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '4px',
     fontSize: '14px',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "'Poppins', sans-serif",
     backgroundColor: '#fff',
     cursor: 'pointer',
   },
@@ -174,7 +174,7 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '4px',
     fontSize: '14px',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "'Poppins', sans-serif",
     resize: 'vertical',
   },
   commentBtn: {

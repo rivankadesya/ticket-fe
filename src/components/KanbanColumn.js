@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Circle, Loader, CheckCircle, Archive } from 'lucide-react';
+import { Circle, Loader, CheckCircle, Archive, Plus } from 'lucide-react';
 import KanbanCard from './KanbanCard';
 import { statusColors } from '../theme';
 import Text from './Text';
@@ -13,7 +13,7 @@ const statusIcons = {
   Closed: Archive,
 };
 
-const KanbanColumn = ({ status, tickets, theme: t, onEdit, onDelete, onDetail }) => {
+const KanbanColumn = ({ status, tickets, theme: t, onEdit, onDelete, onDetail, onAdd }) => {
   const { setNodeRef, isOver } = useDroppable({ id: `column-${status}`, data: { status } });
   const Icon = statusIcons[status] || Circle;
 
@@ -54,6 +54,16 @@ const KanbanColumn = ({ status, tickets, theme: t, onEdit, onDelete, onDetail })
           )}
         </div>
       </SortableContext>
+
+      <button onClick={() => onAdd?.(status)} style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+        width: '100%', marginTop: '12px', padding: '8px', borderRadius: '10px',
+        border: `1.5px dashed ${t.border}`, backgroundColor: 'transparent',
+        color: t.text.tertiary, fontSize: '12px', fontWeight: '600',
+        cursor: 'pointer', transition: 'all 0.2s',
+      }}>
+        <Plus size={14} /> Add Ticket
+      </button>
     </div>
   );
 };
