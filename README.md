@@ -1,6 +1,6 @@
 # IT Support Tickets - Frontend Application
 
-Aplikasi klien dashboard tiket IT Support yang dibangun menggunakan **React 19**, sinkronisasi **Socket.IO** real-time, **Pusher Beams** untuk push notification, **dnd-kit** untuk drag-and-drop kanban, dan visual modern (Glassmorphism, priority accents, light/dark theme).
+Aplikasi klien dashboard tiket IT Support yang dibangun menggunakan **React 19**, sinkronisasi **Socket.IO** real-time, **Pusher Beams** untuk push notification, **dnd-kit** untuk drag-and-drop kanban, dan visual modern dengan light/dark theme.
 
 ---
 
@@ -16,6 +16,7 @@ Aplikasi klien dashboard tiket IT Support yang dibangun menggunakan **React 19**
 | **Lucide React** | Icon set |
 | **Socket.IO Client** | Koneksi WebSocket real-time ke backend |
 | **@pusher/push-notifications-web** | Push notification browser via Pusher Beams |
+| **use-debounce** | Debounce pada pencarian |
 
 ---
 
@@ -24,43 +25,47 @@ Aplikasi klien dashboard tiket IT Support yang dibangun menggunakan **React 19**
 ```
 frontend/
 ├── public/
-│   └── service-worker.js          # Service worker untuk push notification Pusher Beams
+│   └── service-worker.js            # Service worker untuk push notification Pusher Beams
 │
 ├── src/
 │   ├── components/
-│   │   ├── Text.js                # Komponen tipografi Poppins (h1 - mono)
-│   │   ├── ConfirmModal.js        # Modal konfirmasi (pengganti window.confirm)
-│   │   ├── TicketModal.js         # Modal create/edit dengan searchable dropdown assignees
-│   │   ├── TicketModal.styles.js  # Style TicketModal
-│   │   ├── KanbanColumn.js        # Kolom kanban (drop zone per status)
-│   │   └── KanbanCard.js          # Kartu tiket (priority border, assignee avatar)
+│   │   ├── Text.js                  # Komponen tipografi Poppins
+│   │   ├── ConfirmModal.js          # Modal konfirmasi hapus
+│   │   ├── TicketModal.js           # Modal create/edit dengan custom dropdown
+│   │   ├── TicketModal.styles.js    # Style TicketModal
+│   │   ├── KanbanColumn.js          # Kolom kanban (drop zone + tombol add)
+│   │   └── KanbanCard.js            # Kartu tiket (priority border, assignee avatar)
 │   │
 │   ├── context/
-│   │   └── AuthContext.js         # Manajemen sesi JWT + registrasi Pusher Beams
+│   │   └── AuthContext.js           # Manajemen sesi JWT + registrasi Pusher Beams
 │   │
 │   ├── screens/
 │   │   ├── Dashboard/
-│   │   │   ├── component.js       # Main dashboard (metrik, tabel/kanban, sidebar, users)
-│   │   │   └── styles.js          # Style Dashboard
+│   │   │   ├── component.js         # Main dashboard (metrik, tabel/kanban, filter, side panel)
+│   │   │   └── styles.js            # Style Dashboard
 │   │   ├── Login/
+│   │   │   ├── component.js         # Login screen (split-screen layout + animasi)
+│   │   │   └── styles.js
 │   │   ├── Register/
+│   │   │   ├── component.js         # Register screen
+│   │   │   └── styles.js
 │   │   ├── KanbanBoard/
 │   │   ├── TicketDetail/
 │   │   └── CreateTicket/
 │   │
 │   ├── store/
-│   │   └── themeStore.js          # Zustand store dark/light mode
+│   │   └── themeStore.js            # Zustand store dark/light mode
 │   │
 │   ├── services/
-│   │   ├── api.js                 # Axios client + service functions
-│   │   ├── socket.js              # Socket.IO client helper
-│   │   └── pusher.js              # Pusher Beams SDK helper
+│   │   ├── api.js                   # Axios client + service functions
+│   │   ├── socket.js                # Socket.IO client helper
+│   │   └── pusher.js                # Pusher Beams SDK helper
 │   │
-│   ├── theme.js                   # Token warna light/dark mode
-│   ├── index.css                  # Font Poppins & reset CSS
-│   └── App.js                     # Root component + routing
+│   ├── theme.js                     # Token warna light/dark mode + priority/status colors
+│   ├── index.css                    # Font Poppins, reset CSS, keyframe animasi
+│   └── App.js                       # Root component + routing
 │
-├── .env                           # Konfigurasi env (git-ignored)
+├── .env                             # Konfigurasi env (git-ignored)
 └── package.json
 ```
 
@@ -70,15 +75,8 @@ frontend/
 
 ### 1. Real-Time Sync via Socket.IO
 
-Menggantikan short-polling dengan **Socket.IO** WebSocket untuk update data instan.
+Dashboard menerima update tiket secara real-time tanpa perlu refresh halaman.
 
-#### Alur kerja:
-1. Dashboard mount → `connectSocket()` terpanggil, membuka koneksi WebSocket ke backend (`localhost:5001`).
-2. `onEvent('tickets:created', cb)` mendaftarkan listener untuk event tiket baru.
-3. Saat user lain membuat/mengupdate/menghapus tiket di browser lain, backend emit event `tickets:created/updated/deleted`.
-4. Frontend langsung memanggil `fetchData(false)` — refresh data tanpa polling.
-
-#### Event yang didengarkan:
 | Event | Aksi |
 |---|---|
 | `tickets:created` | Refresh data tiket & metrik |
@@ -86,110 +84,79 @@ Menggantikan short-polling dengan **Socket.IO** WebSocket untuk update data inst
 | `tickets:deleted` | Refresh data tiket & metrik |
 | `comments:added` | Refresh komentar (jika panel detail terbuka) |
 
-#### Perbandingan dengan short-polling sebelumnya:
-| Aspek | Sebelum (Polling) | Sesudah (Socket.IO) |
-|---|---|---|
-| Delay update | 5 detik (tiket), 3 detik (komentar) | Real-time (0 delay) |
-| HTTP request per menit | 12-20 request | 0 (setelah koneksi) |
-| Beban server | Tinggi (request periodik) | Rendah (event-based) |
-
-#### File terkait:
-- `src/services/socket.js` — Koneksi, listener management
-- `src/screens/Dashboard/component.js` — Subscriber event
-
----
-
 ### 2. Push Notification (Pusher Beams)
 
-Notifikasi push browser meskipun tab dashboard sedang tidak aktif.
+Notifikasi push browser via Pusher Beams. Setelah login, pengguna otomatis terdaftar sebagai penerima notifikasi.
 
-#### Alur kerja:
-1. Setelah login sukses, `AuthContext` memanggil `initPusherBeams()`.
-2. `registerPusherUser()` memanggil `POST /api/pusher/beams-auth` dengan JWT token.
-3. Backend mengembalikan token autentikasi Pusher yang ditandatangani.
-4. Browser terdaftar ke Pusher Beams via Service Worker.
-5. Saat tiket baru dibuat/diperbarui, backend publish notifikasi → browser menampilkan banner.
-
-#### Notifikasi yang diterima:
-- **Tiket baru** — `"Tiket Baru Ditugaskan"` + judul tiket
-- **Tiket diperbarui** — `"Tiket Diperbarui"` + perubahan status/priority
-
-#### File terkait:
-- `public/service-worker.js` — Service worker Pusher Beams
-- `src/services/pusher.js` — Inisialisasi & registrasi SDK
-- `src/context/AuthContext.js` — Trigger registrasi saat login/logout
-
----
+- **Tiket baru** → `"Tiket Baru Ditugaskan"` + judul tiket
+- **Tiket diperbarui** → `"Tiket Diperbarui"` + perubahan status/priority
+- Opsional — jika tidak dikonfigurasi, aplikasi tetap berjalan normal
 
 ### 3. Drag-and-Drop Kanban (dnd-kit)
 
 Papan kanban dengan drag-and-drop untuk mengubah status tiket secara instan.
 
-#### Solusi masalah:
-Secara default, dnd-kit menelan semua event klik pada kartu. Untuk mengatasinya, kami menggunakan `activationConstraint.distance: 8px`:
+- **Klik biasa** (< 8px pergerakan) → membuka detail tiket
+- **Drag** (≥ 8px pergerakan) → memindahkan tiket ke kolom status lain
+- Optimistic update — status langsung berubah di UI sebelum response server
 
-```javascript
-const sensors = useSensors(
-  useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 8, // Drag hanya aktif setelah geser 8px
-    },
-  })
-);
-```
+### 4. Add Ticket per Kolom
 
-Artinya:
-- **Klik biasa** (< 8px pergerakan) → membuka detail, edit, atau hapus tiket.
-- **Drag** (≥ 8px pergerakan) → memindahkan tiket ke kolom status lain.
+Setiap kolom kanban memiliki tombol **"+ Add Ticket"** yang membuka modal create dengan status otomatis terisi sesuai kolom.
 
-#### Optimisme update:
-Saat drag selesai, status langsung diubah di state lokal (`setTickets`) sebelum response server — memberikan feedback instan ke user.
+### 5. Filter Multi-Pill
 
----
+Filter status dan priority menggunakan chip/pill style:
+- Pilih banyak status sekaligus (misal: Open + In Progress)
+- Pilih banyak priority sekaligus
+- Active filters ditampilkan sebagai tag removable
+- Filter dilakukan client-side — data tetap lengkap di memori
 
-### 4. Priority Indicator
+### 6. Priority Indicator
 
-Empat tingkat prioritas dengan warna dan icon berbeda:
+| Priority | Warna | Icon |
+|---|---|---|
+| Low | Hijau (`#22c55e`) | `ArrowDown` |
+| Medium | Kuning (`#eab308`) | `AlertCircle` |
+| High | Oranye (`#f97316`) | `Zap` |
+| Critical | Merah (`#ef4444`) | `Flame` |
 
-| Priority | Warna | Icon | Glow |
-|---|---|---|---|
-| Low | Hijau (`#22c55e`) | `ArrowDown` | Hijau transparan |
-| Medium | Kuning (`#eab308`) | `AlertCircle` | Kuning transparan |
-| High | Oranye (`#f97316`) | `Zap` | Oranye transparan |
-| Critical | Merah (`#ef4444`) | `Flame` | Merah transparan |
+### 7. Custom Dropdown
 
----
+Dropdown Category, Priority, Status, dan Assignees menggunakan custom dropdown (bukan native `<select>`) dengan:
+- Animasi buka/tutup
+- Warna indikator (dot)
+- Avatar inisial pada dropdown assignee
+- Searchable multi-select assignee (maks 5 user tampil, sisanya harus search)
 
-### 5. Searchable Assignee Dropdown
+### 8. Login & Register Screen
 
-Modal create/edit tiket memiliki dropdown multi-select assignee dengan fitur pencarian (search by name/email). Style dropdown menampilkan avatar + nama + email per opsi.
+Split-screen layout dengan:
+- Panel kiri: branding, tagline, daftar fitur
+- Panel kanan: form login/register
+- Animasi entrance (staggered fade-in)
+- Background blob floating
 
----
+### 9. Search dengan Debounce
 
-### 6. Confirm Modal (Mengganti `window.confirm`)
-
-Semua konfirmasi hapus menggunakan komponen `ConfirmModal` kustom dengan desain konsisten, bukan `window.confirm` bawaan browser.
-
----
-
-### 7. Users Directory
-
-Tab "Users Directory" menampilkan daftar semua user aktif dengan avatar, nama, email, role, dan status. Pencarian user real-time berdasarkan nama atau email.
+Pencarian tiket menggunakan `use-debounce` (300ms delay) untuk menghindari filter ulang saat mengetik cepat.
 
 ---
 
 ## Instalasi & Menjalankan
 
-1. Pasang semua dependensi npm:
+### Development
+
+1. Pasang dependensi:
 ```bash
 npm install
 ```
 
-2. Buat file `.env` di root folder frontend:
+2. Buat file `.env`:
 ```env
 REACT_APP_API_BASE_URL=http://localhost:5001/api
 
-# Pusher Beams (opsional — untuk push notification)
+# Pusher Beams (opsional)
 REACT_APP_PUSHER_BEAMS_INSTANCE_ID=
 ```
 
@@ -198,13 +165,47 @@ REACT_APP_PUSHER_BEAMS_INSTANCE_ID=
 npm start
 ```
 
-Aplikasi akan berjalan di `http://localhost:3000` dan otomatis membuka browser.
+Aplikasi akan berjalan di `http://localhost:3000`.
+
+### Production Build
+
+```bash
+npm run build
+```
+
+Hasil build di folder `build/` — siap di-deploy ke webserver (Nginx, Apache, dll).
+
+---
+
+## Deployment dengan Nginx
+
+1. Build frontend:
+```bash
+npm run build
+```
+
+2. Konfigurasi Nginx:
+```nginx
+server {
+    listen 80;
+    server_name ticket.domain-anda.com;
+    root /var/www/ticket-fe/build;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+3. Jika backend di server berbeda, pastikan `REACT_APP_API_BASE_URL` diisi domain backend.
 
 ---
 
 ## Catatan Pengembangan
 
-- **Pastikan backend sudah running** di `localhost:5001` sebelum menjalankan frontend.
-- **Socket.IO** akan otomatis connect ke server di `REACT_APP_API_BASE_URL` (tanpa suffix `/api`).
-- **Pusher Beams** bersifat opsional. Jika dikosongkan, aplikasi tetap berjalan normal tanpa push notification.
-- **Service worker** (`service-worker.js`) hanya aktif jika Pusher Beams dikonfigurasi.
+- Pastikan **backend sudah running** sebelum menjalankan frontend.
+- **Socket.IO** akan otomatis connect ke server dari `REACT_APP_API_BASE_URL` (tanpa suffix `/api`).
+- **Pusher Beams** bersifat opsional. Jika dikosongkan, aplikasi tetap berjalan normal.
+- **Custom scrollbar** menyesuaikan tema (light/dark).
+- Font menggunakan **Poppins** dari Google Fonts.
