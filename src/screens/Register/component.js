@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, User, UserPlus, Ticket } from 'lucide-react';
+import { Mail, Lock, User, UserPlus, Ticket, Eye, EyeOff } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import { useTheme } from '../../store/themeStore';
 import { lightTheme, darkTheme } from '../../theme';
@@ -21,6 +21,7 @@ const RegisterComponent = () => {
   const [focusedField, setFocusedField] = useState(null);
   const [logoHover, setLogoHover] = useState(false);
   const [btnHover, setBtnHover] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
   const { isDark } = useTheme();
@@ -115,7 +116,7 @@ const RegisterComponent = () => {
             <div style={{ ...s.formGroup, ...getFormDelay(0) }}>
               <label style={s.label}>Full Name</label>
               <div style={s.inputWrapper}>
-                <User size={16} style={{ ...s.inputIcon, color: focusedField === 'name' ? t.accent : t.text.tertiary }} />
+                <User size={16} style={{ ...s.inputIcon, color: focusedField === 'name' ? t.accent : s.inputIcon.color }} />
                 <input
                   type="text" value={name} onChange={(e) => setName(e.target.value)} required
                   placeholder="John Doe"
@@ -133,7 +134,7 @@ const RegisterComponent = () => {
             <div style={{ ...s.formGroup, ...getFormDelay(1) }}>
               <label style={s.label}>Email</label>
               <div style={s.inputWrapper}>
-                <Mail size={16} style={{ ...s.inputIcon, color: focusedField === 'email' ? t.accent : t.text.tertiary }} />
+                <Mail size={16} style={{ ...s.inputIcon, color: focusedField === 'email' ? t.accent : s.inputIcon.color }} />
                 <input
                   type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
                   placeholder="you@company.com"
@@ -151,18 +152,26 @@ const RegisterComponent = () => {
             <div style={{ ...s.formGroup, marginBottom: '24px', ...getFormDelay(2) }}>
               <label style={s.label}>Password</label>
               <div style={s.inputWrapper}>
-                <Lock size={16} style={{ ...s.inputIcon, color: focusedField === 'password' ? t.accent : t.text.tertiary }} />
+                <Lock size={16} style={{ ...s.inputIcon, color: focusedField === 'password' ? t.accent : s.inputIcon.color }} />
                 <input
-                  type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
+                  type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required
                   minLength="8" placeholder="Min. 8 characters"
                   style={{
                     ...s.input,
+                    paddingRight: '38px',
                     borderColor: focusedField === 'password' ? t.accent : s.input.borderColor,
                     transform: focusedField === 'password' ? 'scale(1.01)' : 'scale(1)',
                   }}
                   onFocus={() => setFocusedField('password')}
                   onBlur={() => setFocusedField(null)}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ ...s.eyeBtn, color: focusedField === 'password' ? t.accent : s.eyeBtn.color }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
