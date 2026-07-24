@@ -42,6 +42,7 @@ import TicketModal from '../../components/TicketModal';
 import ConfirmModal from '../../components/ConfirmModal';
 import Text from '../../components/Text';
 import { useTheme } from "../../store/themeStore";
+import { useDebounce } from "use-debounce";
 import {
   lightTheme,
   darkTheme,
@@ -105,8 +106,8 @@ const DashboardComponent = () => {
   const [metrics, setMetrics] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterPriority, setFilterPriority] = useState("");
+  const [filterStatus, setFilterStatus] = useState([]);
+  const [filterPriority, setFilterPriority] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("table");
   const [activeId, setActiveId] = useState(null);
@@ -123,6 +124,7 @@ const DashboardComponent = () => {
   const [defaultStatus, setDefaultStatus] = useState(null);
   const [users, setUsers] = useState([]);
 
+  const [debouncedSearch] = useDebounce(searchQuery, 300);
   const { isDark, toggleTheme } = useTheme();
   const t = isDark ? darkTheme : lightTheme;
   const statuses = ["Open", "In Progress", "Resolved", "Closed"];
@@ -155,7 +157,7 @@ const DashboardComponent = () => {
       offEvent('tickets:updated', ticketCb);
       offEvent('tickets:deleted', ticketCb);
     };
-  }, [filterStatus, filterPriority]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (detailTicket) {
@@ -171,10 +173,7 @@ const DashboardComponent = () => {
     try {
       const [metricsRes, ticketsRes, usersRes] = await Promise.all([
         ticketService.getDashboardMetrics(),
-        ticketService.getTickets({
-          ...(filterStatus && { status: filterStatus }),
-          ...(filterPriority && { priority: filterPriority }),
-        }),
+        ticketService.getTickets({}),
         authService.getUsers(),
       ]);
       setMetrics(metricsRes.data.metrics);
@@ -287,12 +286,16 @@ const DashboardComponent = () => {
   };
 
   const filtered = tickets.filter(
-    (tk) =>
-      !searchQuery ||
-      tk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tk.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (tk.description &&
-        tk.description.toLowerCase().includes(searchQuery.toLowerCase())),
+    (tk) => {
+      const matchSearch = !debouncedSearch ||
+        tk.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        tk.category?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        (tk.description &&
+          tk.description.toLowerCase().includes(debouncedSearch.toLowerCase()));
+      const matchStatus = filterStatus.length === 0 || filterStatus.includes(tk.status);
+      const matchPriority = filterPriority.length === 0 || filterPriority.includes(tk.priority);
+      return matchSearch && matchStatus && matchPriority;
+    },
   );
 
   const getByStatus = (status) => filtered.filter((tk) => tk.status === status);
@@ -502,10 +505,10 @@ const DashboardComponent = () => {
             <div style={s.toolbarRight}>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                style={s.filterTriggerBtn(filterStatus || filterPriority)}
+                style={s.filterTriggerBtn(filterStatus.length > 0 || filterPriority.length > 0)}
               >
                 <Filter size={14} /> Filters
-                {(filterStatus || filterPriority) && (
+                {(filterStatus.length > 0 || filterPriority.length > 0) && (
                   <span
                     style={{
                       width: "18px",
@@ -520,7 +523,7 @@ const DashboardComponent = () => {
                       fontWeight: "700",
                     }}
                   >
-                    {(filterStatus ? 1 : 0) + (filterPriority ? 1 : 0)}
+                    {filterStatus.length + filterPriority.length}
                   </span>
                 )}
               </button>
@@ -532,40 +535,56 @@ const DashboardComponent = () => {
 
           {showFilters && (
             <div style={s.filterPanel}>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                style={s.filterSelect}
-              >
-                <option value="">All Status</option>
-                {statuses.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
+              <div style={s.filterGroup}>
+                <span style={s.filterGroupLabel}>Status</span>
+                {statuses.map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setFilterStatus((prev) =>
+                      prev.includes(st) ? prev.filter((s) => s !== st) : [...prev, st]
+                    )}
+                    style={s.filterChip(filterStatus.includes(st), statusColors[st])}
+                  >
+                    <div style={s.filterChipDot(statusColors[st])} />
+                    {st}
+                  </button>
                 ))}
-              </select>
-              <select
-                value={filterPriority}
-                onChange={(e) => setFilterPriority(e.target.value)}
-                style={s.filterSelect}
-              >
-                <option value="">All Priority</option>
-                {["Low", "Medium", "High", "Critical"].map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
+              </div>
+
+              <div style={{ ...s.filterGroup, marginTop: "10px" }}>
+                <span style={s.filterGroupLabel}>Priority</span>
+                {[{ label: "Low", color: "#22c55e" }, { label: "Medium", color: "#eab308" }, { label: "High", color: "#f97316" }, { label: "Critical", color: "#ef4444" }].map((p) => (
+                  <button
+                    key={p.label}
+                    onClick={() => setFilterPriority((prev) =>
+                      prev.includes(p.label) ? prev.filter((pl) => pl !== p.label) : [...prev, p.label]
+                    )}
+                    style={s.filterChip(filterPriority.includes(p.label), p.color)}
+                  >
+                    <div style={s.filterChipDot(p.color)} />
+                    {p.label}
+                  </button>
                 ))}
-              </select>
-              {(filterStatus || filterPriority) && (
-                <button
-                  onClick={() => {
-                    setFilterStatus("");
-                    setFilterPriority("");
-                  }}
-                  style={s.clearFiltersBtn}
-                >
-                  <X size={13} /> Clear
-                </button>
+              </div>
+
+              {(filterStatus.length > 0 || filterPriority.length > 0) && (
+                <div style={s.filterActiveRow}>
+                  {filterStatus.map((st) => (
+                    <span key={st} style={s.filterActiveTag(statusColors[st])}>
+                      {st}
+                      <X size={10} style={{ cursor: "pointer" }} onClick={() => setFilterStatus((prev) => prev.filter((s) => s !== st))} />
+                    </span>
+                  ))}
+                  {filterPriority.map((p) => (
+                    <span key={p} style={s.filterActiveTag(priorityColors[p])}>
+                      {p}
+                      <X size={10} style={{ cursor: "pointer" }} onClick={() => setFilterPriority((prev) => prev.filter((pl) => pl !== p))} />
+                    </span>
+                  ))}
+                  <button onClick={() => { setFilterStatus([]); setFilterPriority([]); }} style={s.filterClearBtn}>
+                    Clear all
+                  </button>
+                </div>
               )}
             </div>
           )}

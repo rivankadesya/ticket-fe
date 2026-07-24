@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { initPusherBeams, registerPusherUser, clearPusherUser } from '../services/pusher';
+import { registerPusherUser, clearPusherUser } from '../services/pusher';
 
 export const AuthContext = createContext();
 
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      initPusherBeams().then(() => registerPusherUser());
+      registerPusherUser();
     }
   }, [token]);
 
