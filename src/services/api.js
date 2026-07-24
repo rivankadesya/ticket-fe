@@ -21,6 +21,12 @@ export const authService = {
     apiClient.post('/auth/login', { email, password }),
   getUsers: () =>
     apiClient.get('/auth/users'),
+  getMe: () =>
+    apiClient.get('/auth/me'),
+  updateProfile: (name) =>
+    apiClient.put('/auth/profile', { name }),
+  changePassword: (current_password, new_password) =>
+    apiClient.put('/auth/password', { current_password, new_password }),
 };
 
 export const ticketService = {

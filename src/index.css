@@ -161,3 +161,15 @@ table {
 @media (max-width: 480px) {
   html { font-size: 13px; }
 }
+
+@media (max-width: 420px) {
+  .login-card {
+    border-radius: 16px !important;
+  }
+}
+
+@media (max-height: 700px) {
+  .login-left-panel {
+    padding: 32px 40px !important;
+  }
+}

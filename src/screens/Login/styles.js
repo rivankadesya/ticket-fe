@@ -40,8 +40,6 @@ export const getStyles = (t, isDark) => ({
   innerContainer: {
     display: 'flex',
     width: '100%',
-    maxWidth: '920px',
-    minHeight: '560px',
     borderRadius: '24px',
     overflow: 'hidden',
     position: 'relative',
@@ -153,13 +151,12 @@ export const getStyles = (t, isDark) => ({
     flexShrink: 0,
   },
   card: {
-    width: '420px',
     backgroundColor: isDark ? '#111827' : '#ffffff',
-    padding: '48px 40px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     animation: 'slideUp 0.5s ease-out 0.15s both',
+    boxSizing: 'border-box',
   },
   logoWrapper: {
     marginBottom: '32px',
@@ -228,14 +225,13 @@ export const getStyles = (t, isDark) => ({
   },
   inputIcon: {
     position: 'absolute',
-    left: '12px',
+    left: '14px',
     top: '50%',
     transform: 'translateY(-50%)',
     transition: 'color 0.2s ease',
     color: isDark ? '#94a3b8' : '#94a3b8',
-  },
-  inputIconFocus: {
-    color: t.accent,
+    zIndex: 2,
+    pointerEvents: 'none',
   },
   eyeBtn: {
     position: 'absolute',
@@ -260,6 +256,7 @@ export const getStyles = (t, isDark) => ({
     color: t.text.primary,
     fontSize: '14px',
     fontWeight: '500',
+    fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
     transition: 'border-color 0.2s, box-shadow 0.2s, background-color 0.2s, transform 0.2s',
   },
@@ -274,6 +271,7 @@ export const getStyles = (t, isDark) => ({
     color: '#fff',
     fontSize: '14px',
     fontWeight: '600',
+    fontFamily: "'Poppins', sans-serif",
     cursor: loading ? 'not-allowed' : 'pointer',
     display: 'flex',
     alignItems: 'center',

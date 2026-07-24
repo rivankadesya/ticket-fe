@@ -99,6 +99,7 @@ export const getStyles = (
     alignItems: "center",
     padding: "14px 20px",
     gap: "8px",
+    flexWrap: "wrap",
   },
   metricHero: {
     display: "flex",

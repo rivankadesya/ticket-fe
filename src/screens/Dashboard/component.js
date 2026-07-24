@@ -40,6 +40,7 @@ import KanbanColumn from '../../components/KanbanColumn';
 import KanbanCard from '../../components/KanbanCard';
 import TicketModal from '../../components/TicketModal';
 import ConfirmModal from '../../components/ConfirmModal';
+import ProfileModal from '../../components/ProfileModal';
 import Text from '../../components/Text';
 import { useTheme } from "../../store/themeStore";
 import { useDebounce } from "use-debounce";
@@ -123,9 +124,16 @@ const DashboardComponent = () => {
   const [activeMenu, setActiveMenu] = useState("tickets"); // "tickets" or "users"
   const [defaultStatus, setDefaultStatus] = useState(null);
   const [users, setUsers] = useState([]);
+const [profileOpen, setProfileOpen] = useState(false);
 
   const [debouncedSearch] = useDebounce(searchQuery, 300);
   const { isDark, toggleTheme } = useTheme();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
   const t = isDark ? darkTheme : lightTheme;
   const statuses = ["Open", "In Progress", "Resolved", "Closed"];
 
@@ -344,7 +352,7 @@ const DashboardComponent = () => {
   return (
     <div style={s.container}>
       {/* Header */}
-      <header style={s.header}>
+      <header style={{ ...s.header, padding: isMobile ? "0 12px" : "0 24px" }}>
         <div style={s.headerLeft}>
           <div style={s.headerLogo}>
             <Ticket size={18} color="#fff" />
@@ -366,16 +374,20 @@ const DashboardComponent = () => {
             {isDark ? <Sun size={15} /> : <Moon size={15} />}
           </button>
           <div style={s.divider} />
-          <Avatar name={user?.name} size={32} />
-          <Text
-            style={{
-              color: t.text.primary,
-              fontWeight: "600",
-              marginLeft: "4px",
-            }}
+          <div
+            onClick={() => setProfileOpen(true)}
+            style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", borderRadius: "8px", padding: "4px 8px 4px 4px", transition: "all 0.15s" }}
           >
-            {user?.name}
-          </Text>
+            <Avatar name={user?.name} size={32} />
+            <Text
+              style={{
+                color: t.text.primary,
+                fontWeight: "600",
+              }}
+            >
+              {user?.name}
+            </Text>
+          </div>
           <button
             onClick={() => {
               logout();
@@ -403,13 +415,19 @@ const DashboardComponent = () => {
         </div>
       </div>
 
-      <main style={s.main}>
+      <main style={{ ...s.main, padding: isMobile ? "12px" : "20px" }}>
         {activeMenu === "tickets" ? (
           <>
             {/* Metrics — compact info card */}
         {metrics && (
-          <div style={s.metricsCard}>
-            <div style={s.metricsBody}>
+          <div style={{ ...s.metricsCard, overflow: isMobile ? "auto" : "hidden" }}>
+            <div style={{
+              ...s.metricsBody,
+              flexDirection: isMobile ? "column" : "row",
+              alignItems: isMobile ? "stretch" : "center",
+              gap: isMobile ? "12px" : "8px",
+              padding: isMobile ? "12px 14px" : "14px 20px",
+            }}>
               {/* Hero: Total */}
               <div style={s.metricHero}>
                 <Ticket size={16} color={t.accent} />
@@ -417,10 +435,10 @@ const DashboardComponent = () => {
                 <span style={s.metricHeroLabel}>Total Tickets</span>
               </div>
 
-              <div style={s.metricDivider} />
+              <div style={{ ...s.metricDivider, width: isMobile ? "100%" : "1px", height: isMobile ? "1px" : "36px" }} />
 
               {/* Statuses */}
-              <div style={s.metricGroup}>
+              <div style={{ ...s.metricGroup, flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center", padding: isMobile ? "0" : "0 16px" }}>
                 <div style={s.metricGroupLabel}>Status</div>
                 <div style={s.metricItems}>
                   {statusItems.map((c) => (
@@ -433,10 +451,10 @@ const DashboardComponent = () => {
                 </div>
               </div>
 
-              <div style={s.metricDivider} />
+              <div style={{ ...s.metricDivider, width: isMobile ? "100%" : "1px", height: isMobile ? "1px" : "36px" }} />
 
               {/* Priorities */}
-              <div style={s.metricGroup}>
+              <div style={{ ...s.metricGroup, flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center", padding: isMobile ? "0" : "0 16px" }}>
                 <div style={s.metricGroupLabel}>Priority</div>
                 <div style={s.metricItems}>
                   {priorityItems.map((c) => (
@@ -449,10 +467,10 @@ const DashboardComponent = () => {
                 </div>
               </div>
 
-              <div style={s.metricDivider} />
+              <div style={{ ...s.metricDivider, width: isMobile ? "100%" : "1px", height: isMobile ? "1px" : "36px" }} />
 
               {/* Team */}
-              <div style={s.metricTeam} onClick={() => setActiveMenu("users")}>
+              <div style={{ ...s.metricTeam, padding: isMobile ? "0" : "0 4px 0 16px" }} onClick={() => setActiveMenu("users")}>
                 <Users size={15} color="#ec4899" />
                 <span style={s.metricTeamValue}>{metrics.total_users || 0}</span>
                 <span style={s.metricTeamLabel}>Users</span>
@@ -462,11 +480,16 @@ const DashboardComponent = () => {
         )}
 
         {/* Toolbar */}
-        <div style={s.toolbar}>
-          <div style={s.toolbarContent}>
-            <div style={s.toolbarLeft}>
-              <button onClick={openCreate} style={s.newTicketBtn}>
-                <Plus size={15} /> New Ticket
+        <div style={{ ...s.toolbar, padding: isMobile ? "12px 14px" : "16px 20px" }}>
+          <div style={{
+            ...s.toolbarContent,
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "stretch" : "center",
+            gap: isMobile ? "10px" : "12px",
+          }}>
+            <div style={{ ...s.toolbarLeft, flexWrap: isMobile ? "wrap" : "nowrap", gap: isMobile ? "8px" : "10px" }}>
+              <button onClick={openCreate} style={{ ...s.newTicketBtn, flex: isMobile ? "1 1 auto" : "none", height: isMobile ? "36px" : "38px", fontSize: isMobile ? "12px" : "13px" }}>
+                <Plus size={isMobile ? 13 : 15} /> New Ticket
               </button>
 
               <div style={s.viewToggle}>
@@ -482,13 +505,13 @@ const DashboardComponent = () => {
                       idx === arr.length - 1,
                     )}
                   >
-                    <Icon size={14} />{" "}
-                    <span style={{ fontSize: "12px" }}>{label}</span>
+                    <Icon size={isMobile ? 13 : 14} />{" "}
+                    <span style={{ fontSize: isMobile ? "11px" : "12px" }}>{label}</span>
                   </button>
                 ))}
               </div>
 
-              <div style={s.searchWrapper}>
+              <div style={{ ...s.searchWrapper, minWidth: isMobile ? "140px" : "220px", flex: isMobile ? "1" : "0 1 320px", height: isMobile ? "36px" : "38px" }}>
                 <Search
                   size={14}
                   style={{ ...s.searchIcon, color: t.text.tertiary }}
@@ -497,17 +520,17 @@ const DashboardComponent = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search"
-                  style={s.searchInput}
+                  style={{ ...s.searchInput, height: isMobile ? "36px" : "38px", fontSize: isMobile ? "12px" : "13px" }}
                 />
               </div>
             </div>
 
-            <div style={s.toolbarRight}>
+            <div style={{ ...s.toolbarRight, justifyContent: isMobile ? "flex-start" : "flex-end", height: isMobile ? "auto" : "38px" }}>
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 style={s.filterTriggerBtn(filterStatus.length > 0 || filterPriority.length > 0)}
               >
-                <Filter size={14} /> Filters
+                <Filter size={isMobile ? 13 : 14} /> Filters
                 {(filterStatus.length > 0 || filterPriority.length > 0) && (
                   <span
                     style={{
@@ -592,8 +615,8 @@ const DashboardComponent = () => {
 
         {/* Table View */}
         {viewMode === "table" && (
-          <div style={s.tableWrap}>
-            <div style={{ overflowX: "auto" }}>
+          <div style={{ ...s.tableWrap, overflowX: "auto" }}>
+            <div>
               <table style={s.table}>
                 <thead>
                   <tr>
@@ -778,8 +801,8 @@ const DashboardComponent = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))",
-                gap: "16px",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(290px, 1fr))",
+                gap: isMobile ? "12px" : "16px",
               }}
             >
               {statuses.map((status) => (
@@ -895,6 +918,19 @@ const DashboardComponent = () => {
         title="Delete Ticket"
         message="Are you sure you want to delete this ticket? This action cannot be undone."
         theme={t}
+      />
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        user={user}
+        theme={t}
+        isDark={isDark}
+        onUpdate={(updated) => {
+          localStorage.setItem('user', JSON.stringify({ ...user, ...updated }));
+          window.location.reload();
+        }}
       />
 
       {/* Detail Side Panel */}
