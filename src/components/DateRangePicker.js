@@ -6,6 +6,7 @@ import 'react-date-range/dist/theme/default.css';
 
 const DateRangePicker = ({ startDate, endDate, onChange, theme }) => {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ left: 0, top: 0 });
   const ref = useRef(null);
   const t = theme || {};
 
@@ -31,7 +32,21 @@ const DateRangePicker = ({ startDate, endDate, onChange, theme }) => {
     <div ref={ref} style={{ position: 'relative' }}>
       <button
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          if (!open && ref.current) {
+            const btn = ref.current.querySelector('button') || ref.current;
+            const rect = btn.getBoundingClientRect();
+            const calW = 340;
+            const spaceRight = window.innerWidth - rect.left;
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const left = spaceRight < calW ? Math.max(4, rect.right - calW) - rect.left : 0;
+            setPos({
+              left,
+              top: spaceBelow < 380 ? -(spaceBelow - 8) : rect.height + 6,
+            });
+          }
+          setOpen(!open);
+        }}
         style={{
           padding: "0 12px",
           borderRadius: "8px",
@@ -56,8 +71,8 @@ const DateRangePicker = ({ startDate, endDate, onChange, theme }) => {
           className="rdrDateRangeWrapper"
           style={{
             position: 'absolute',
-            top: 'calc(100% + 6px)',
-            left: 0,
+            top: pos.top,
+            left: pos.left,
             zIndex: 9999,
             borderRadius: '14px',
             overflow: 'hidden',
@@ -72,7 +87,7 @@ const DateRangePicker = ({ startDate, endDate, onChange, theme }) => {
             }}
             moveRangeOnFirstSelection={false}
             ranges={ranges}
-            months={2}
+            months={1}
             direction="horizontal"
             showDateDisplay={false}
             showMonthAndYearPickers={false}

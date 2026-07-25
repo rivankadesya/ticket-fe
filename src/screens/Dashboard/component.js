@@ -564,10 +564,10 @@ const [profileOpen, setProfileOpen] = useState(false);
             <div style={{ ...s.toolbarRight, justifyContent: isMobile ? "flex-start" : "flex-end", height: isMobile ? "auto" : "38px" }}>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                style={s.filterTriggerBtn(filterStatus.length > 0 || filterPriority.length > 0)}
+                style={s.filterTriggerBtn(filterStatus.length > 0 || filterPriority.length > 0 || filterCategory.length > 0)}
               >
                 <Filter size={isMobile ? 13 : 14} /> Filters
-                {(filterStatus.length > 0 || filterPriority.length > 0) && (
+                {(filterStatus.length > 0 || filterPriority.length > 0 || filterCategory.length > 0) && (
                   <span
                     style={{
                       width: "18px",
@@ -582,7 +582,7 @@ const [profileOpen, setProfileOpen] = useState(false);
                       fontWeight: "700",
                     }}
                   >
-                    {filterStatus.length + filterPriority.length}
+                    {filterStatus.length + filterPriority.length + filterCategory.length}
                   </span>
                 )}
               </button>
@@ -594,96 +594,64 @@ const [profileOpen, setProfileOpen] = useState(false);
 
           {showFilters && (
             <div style={s.filterPanel}>
-              <div style={s.filterGroup}>
-                <span style={s.filterGroupLabel}>Status</span>
-                {statuses.map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => setFilterStatus((prev) =>
-                      prev.includes(st) ? prev.filter((s) => s !== st) : [...prev, st]
-                    )}
-                    style={s.filterChip(filterStatus.includes(st), statusColors[st])}
-                  >
-                    <div style={s.filterChipDot(statusColors[st])} />
-                    {st}
-                  </button>
-                ))}
-              </div>
+              <div style={s.filterGrid}>
+                <div style={s.filterGroup}>
+                  <span style={s.filterGroupLabel}>Status</span>
+                  <div style={s.filterChips}>
+                    {statuses.map((st) => (
+                      <button key={st} onClick={() => setFilterStatus((prev) => prev.includes(st) ? prev.filter((s) => s !== st) : [...prev, st])} style={s.filterChip(filterStatus.includes(st), statusColors[st])}>
+                        <div style={s.filterChipDot(statusColors[st])} />{st}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              <div style={{ ...s.filterGroup, marginTop: "10px" }}>
-                <span style={s.filterGroupLabel}>Priority</span>
-                {[{ label: "Low", color: "#22c55e" }, { label: "Medium", color: "#eab308" }, { label: "High", color: "#f97316" }, { label: "Critical", color: "#ef4444" }].map((p) => (
-                  <button
-                    key={p.label}
-                    onClick={() => setFilterPriority((prev) =>
-                      prev.includes(p.label) ? prev.filter((pl) => pl !== p.label) : [...prev, p.label]
-                    )}
-                    style={s.filterChip(filterPriority.includes(p.label), p.color)}
-                  >
-                    <div style={s.filterChipDot(p.color)} />
-                    {p.label}
-                  </button>
-                ))}
-              </div>
+                <div style={s.filterGroup}>
+                  <span style={s.filterGroupLabel}>Priority</span>
+                  <div style={s.filterChips}>
+                    {[{ label: "Low", color: "#22c55e" }, { label: "Medium", color: "#eab308" }, { label: "High", color: "#f97316" }, { label: "Critical", color: "#ef4444" }].map((p) => (
+                      <button key={p.label} onClick={() => setFilterPriority((prev) => prev.includes(p.label) ? prev.filter((pl) => pl !== p.label) : [...prev, p.label])} style={s.filterChip(filterPriority.includes(p.label), p.color)}>
+                        <div style={s.filterChipDot(p.color)} />{p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              {categories.length > 0 && (
-              <div style={{ ...s.filterGroup, marginTop: "10px" }}>
-                <span style={s.filterGroupLabel}>Category</span>
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setFilterCategory((prev) =>
-                      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-                    )}
-                    style={s.filterChip(filterCategory.includes(cat), t.accent)}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-              )}
-
-              <div style={{ ...s.filterGroup, marginTop: "10px" }}>
-                <span style={s.filterGroupLabel}>Date Range</span>
-                <DateRangePicker
-                  startDate={dateRange[0]}
-                  endDate={dateRange[1]}
-                  onChange={(update) => {
-                    setDateRange(update);
-                    fetchData(false, update);
-                  }}
-                  theme={{
-                    border: t.border,
-                    bgPrimary: t.bg.primary,
-                    textPrimary: t.text.primary,
-                    textTertiary: t.text.tertiary,
-                  }}
-                />
-                {dateRange[0] && (
-                  <button onClick={() => { setDateRange([null, null]); fetchData(false, [null, null]); }} style={s.filterClearBtn}>
-                    Clear
-                  </button>
+                {categories.length > 0 && (
+                  <div style={s.filterGroup}>
+                    <span style={s.filterGroupLabel}>Category</span>
+                    <div style={s.filterChips}>
+                      {categories.map((cat) => (
+                        <button key={cat} onClick={() => setFilterCategory((prev) => prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat])} style={s.filterChip(filterCategory.includes(cat), t.accent)}>
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
+
+                <div style={s.filterGroup}>
+                  <span style={s.filterGroupLabel}>Date Range</span>
+                  <div style={s.filterChips}>
+                    <DateRangePicker startDate={dateRange[0]} endDate={dateRange[1]} onChange={(update) => { setDateRange(update); fetchData(false, update); }} theme={{ border: t.border, bgPrimary: t.bg.primary, textPrimary: t.text.primary, textTertiary: t.text.tertiary }} />
+                    {dateRange[0] && <button onClick={() => { setDateRange([null, null]); fetchData(false, [null, null]); }} style={s.filterClearBtn}>Clear</button>}
+                  </div>
+                </div>
               </div>
 
-              {(filterStatus.length > 0 || filterPriority.length > 0 || dateRange[0]) && (
+              {(filterStatus.length > 0 || filterPriority.length > 0 || filterCategory.length > 0 || dateRange[0]) && (
                 <div style={s.filterActiveRow}>
                   {filterStatus.map((st) => (
-                    <span key={st} style={s.filterActiveTag(statusColors[st])}>
-                      {st}
-                      <X size={10} style={{ cursor: "pointer" }} onClick={() => setFilterStatus((prev) => prev.filter((s) => s !== st))} />
-                    </span>
+                    <span key={st} style={s.filterActiveTag(statusColors[st])}>{st}<X size={10} style={{ cursor: "pointer" }} onClick={() => setFilterStatus((prev) => prev.filter((s) => s !== st))} /></span>
                   ))}
                   {filterPriority.map((p) => (
-                    <span key={p} style={s.filterActiveTag(priorityColors[p])}>
-                      {p}
-                      <X size={10} style={{ cursor: "pointer" }} onClick={() => setFilterPriority((prev) => prev.filter((pl) => pl !== p))} />
-                    </span>
+                    <span key={p} style={s.filterActiveTag(priorityColors[p])}>{p}<X size={10} style={{ cursor: "pointer" }} onClick={() => setFilterPriority((prev) => prev.filter((pl) => pl !== p))} /></span>
                   ))}
-                  {dateRange[0] && <span style={s.filterActiveTag("#6366f1")}>{dateRange[0].toLocaleDateString()} {dateRange[1] ? `— ${dateRange[1].toLocaleDateString()}` : ""} <X size={10} style={{ cursor: "pointer" }} onClick={() => { setDateRange([null, null]); fetchData(false, [null, null]); }} /></span>}
-                  <button onClick={() => { setFilterStatus([]); setFilterPriority([]); setFilterCategory([]); setDateRange([null, null]); fetchData(false, [null, null]); }} style={s.filterClearBtn}>
-                    Clear all
-                  </button>
+                  {filterCategory.map((c) => (
+                    <span key={c} style={s.filterActiveTag(t.accent)}>{c}<X size={10} style={{ cursor: "pointer" }} onClick={() => setFilterCategory((prev) => prev.filter((x) => x !== c))} /></span>
+                  ))}
+                  {dateRange[0] && <span style={s.filterActiveTag("#6366f1")}>{dateRange[0].toLocaleDateString()} {dateRange[1] ? `— ${dateRange[1].toLocaleDateString()}` : ""}<X size={10} style={{ cursor: "pointer" }} onClick={() => { setDateRange([null, null]); fetchData(false, [null, null]); }} /></span>}
+                  <button onClick={() => { setFilterStatus([]); setFilterPriority([]); setFilterCategory([]); setDateRange([null, null]); fetchData(false, [null, null]); }} style={s.filterClearBtn}>Clear all</button>
                 </div>
               )}
             </div>
