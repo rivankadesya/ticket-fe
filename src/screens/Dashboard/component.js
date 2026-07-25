@@ -112,6 +112,7 @@ const DashboardComponent = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState([]);
   const [filterPriority, setFilterPriority] = useState([]);
+  const [filterCategory, setFilterCategory] = useState([]);
   const [dateRange, setDateRange] = useState([null, null]);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("table");
@@ -200,6 +201,7 @@ const [profileOpen, setProfileOpen] = useState(false);
       const ticketParams = {};
       if (start) ticketParams.dateFrom = fmtDate(start);
       if (end) ticketParams.dateTo = fmtDate(end);
+      if (filterCategory.length > 0) ticketParams.category = filterCategory;
 
       const [metricsRes, ticketsRes, usersRes] = await Promise.all([
         ticketService.getDashboardMetrics(),
@@ -324,9 +326,12 @@ const [profileOpen, setProfileOpen] = useState(false);
           tk.description.toLowerCase().includes(debouncedSearch.toLowerCase()));
       const matchStatus = filterStatus.length === 0 || filterStatus.includes(tk.status);
       const matchPriority = filterPriority.length === 0 || filterPriority.includes(tk.priority);
-      return matchSearch && matchStatus && matchPriority;
+      const matchCategory = filterCategory.length === 0 || filterCategory.includes(tk.category);
+      return matchSearch && matchStatus && matchPriority && matchCategory;
     },
   );
+
+  const categories = [...new Set(tickets.map(t => t.category).filter(Boolean))];
 
   const getByStatus = (status) => filtered.filter((tk) => tk.status === status);
   const totalFiltered = filtered.length;
@@ -621,6 +626,23 @@ const [profileOpen, setProfileOpen] = useState(false);
                 ))}
               </div>
 
+              {categories.length > 0 && (
+              <div style={{ ...s.filterGroup, marginTop: "10px" }}>
+                <span style={s.filterGroupLabel}>Category</span>
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setFilterCategory((prev) =>
+                      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+                    )}
+                    style={s.filterChip(filterCategory.includes(cat), t.accent)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              )}
+
               <div style={{ ...s.filterGroup, marginTop: "10px" }}>
                 <span style={s.filterGroupLabel}>Date Range</span>
                 <DateRangePicker
@@ -659,7 +681,7 @@ const [profileOpen, setProfileOpen] = useState(false);
                     </span>
                   ))}
                   {dateRange[0] && <span style={s.filterActiveTag("#6366f1")}>{dateRange[0].toLocaleDateString()} {dateRange[1] ? `— ${dateRange[1].toLocaleDateString()}` : ""} <X size={10} style={{ cursor: "pointer" }} onClick={() => { setDateRange([null, null]); fetchData(false, [null, null]); }} /></span>}
-                  <button onClick={() => { setFilterStatus([]); setFilterPriority([]); setDateRange([null, null]); fetchData(false, [null, null]); }} style={s.filterClearBtn}>
+                  <button onClick={() => { setFilterStatus([]); setFilterPriority([]); setFilterCategory([]); setDateRange([null, null]); fetchData(false, [null, null]); }} style={s.filterClearBtn}>
                     Clear all
                   </button>
                 </div>
