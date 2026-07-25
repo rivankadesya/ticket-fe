@@ -60,12 +60,7 @@ const sections = [
     group: "Backend",
     icon: Wifi,
   },
-  {
-    id: "push-notif",
-    label: "Push Notification",
-    group: "Backend",
-    icon: Bell,
-  },
+
   {
     id: "migration",
     label: "Database Migration",
