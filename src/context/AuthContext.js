@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { registerPusherUser, clearPusherUser } from '../services/pusher';
 
 export const AuthContext = createContext();
 
@@ -17,9 +16,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (token) {
-      registerPusherUser();
-    }
+    // Pusher Beams removed
   }, [token]);
 
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001/api';
@@ -81,7 +78,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    clearPusherUser();
     setUser(null);
     setToken(null);
     localStorage.removeItem('user');
