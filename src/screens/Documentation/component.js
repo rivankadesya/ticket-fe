@@ -238,7 +238,6 @@ const DocumentationComponent = () => {
 
         <div
           style={{
-            ...s.sidebarBottom,
             padding: isMobile ? "12px 12px 24px" : "12px",
           }}
         >
