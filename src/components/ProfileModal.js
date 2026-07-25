@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { X, User, Lock, Save, Loader2 } from 'lucide-react';
+import { X, User, Lock, Save, Loader2, Eye, EyeOff } from 'lucide-react';
 import { authService } from '../services/api';
 
 const ProfileModal = ({ isOpen, onClose, user, theme: t, isDark, onUpdate }) => {
   const [name, setName] = useState(user?.name || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [tab, setTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,6 +20,10 @@ const ProfileModal = ({ isOpen, onClose, user, theme: t, isDark, onUpdate }) => 
       setName(user?.name || '');
       setCurrentPassword('');
       setNewPassword('');
+      setConfirmPassword('');
+      setShowCurrentPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
       setError('');
       setSuccess('');
     }
@@ -39,12 +47,14 @@ const ProfileModal = ({ isOpen, onClose, user, theme: t, isDark, onUpdate }) => 
   const handlePassword = async (e) => {
     e.preventDefault();
     if (newPassword.length < 8) { setError('Password must be at least 8 characters'); return; }
+    if (newPassword !== confirmPassword) { setError('Passwords do not match'); return; }
     setLoading(true); setError(''); setSuccess('');
     try {
       await authService.changePassword(currentPassword, newPassword);
       setSuccess('Password changed successfully');
       setCurrentPassword('');
       setNewPassword('');
+      setConfirmPassword('');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to change password');
     } finally { setLoading(false); }
@@ -111,11 +121,39 @@ const ProfileModal = ({ isOpen, onClose, user, theme: t, isDark, onUpdate }) => 
             <form onSubmit={handlePassword}>
               <div style={s.formGroup}>
                 <label style={s.label}>Current Password</label>
-                <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required placeholder="Enter current password" style={s.input} />
+                <div style={{ position: 'relative' }}>
+                  <input type={showCurrentPassword ? 'text' : 'password'} value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required placeholder="Enter current password" style={s.input} />
+                  <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} style={{
+                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: t.text.tertiary, padding: '4px', display: 'flex',
+                  }}>
+                    {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
               <div style={s.formGroup}>
                 <label style={s.label}>New Password</label>
-                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={8} placeholder="Min. 8 characters" style={s.input} />
+                <div style={{ position: 'relative' }}>
+                  <input type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={8} placeholder="Min. 8 characters" style={s.input} />
+                  <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} style={{
+                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: t.text.tertiary, padding: '4px', display: 'flex',
+                  }}>
+                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <div style={s.formGroup}>
+                <label style={s.label}>Confirm New Password</label>
+                <div style={{ position: 'relative' }}>
+                  <input type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required minLength={8} placeholder="Re-enter new password" style={s.input} />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{
+                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: t.text.tertiary, padding: '4px', display: 'flex',
+                  }}>
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {confirmPassword && newPassword !== confirmPassword && (
+                  <span style={{ fontSize: '11px', color: t.danger, marginTop: '4px', display: 'block' }}>Passwords do not match</span>
+                )}
               </div>
               <button type="submit" disabled={loading} style={s.btn(loading)}>
                 {loading ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={15} />}

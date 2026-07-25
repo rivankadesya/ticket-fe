@@ -1617,11 +1617,6 @@
     schema-utils "^4.2.0"
     source-map "^0.7.3"
 
-"@pusher/push-notifications-web@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/@pusher/push-notifications-web/-/push-notifications-web-1.1.0.tgz"
-  integrity sha512-qR9RZNpH9E54GEpn9uqag9VbLG3kk13DPtf0v4ScsbIZhLFrc1vVWoylzh9zPKiJx3LLwnSxZQA/DkF13OBYXw==
-
 "@rollup/plugin-babel@^5.2.0":
   version "5.3.1"
   resolved "https://registry.npmjs.org/@rollup/plugin-babel/-/plugin-babel-5.3.1.tgz"
